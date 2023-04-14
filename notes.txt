@@ -1,0 +1,17 @@
+1. First step is to acquire docker images for all Hyperledger Fabric samples using this command:
+
+
+	curl -sSL https://bit.ly/2ysbOFE | bash -s
+
+
+2. After all docker images are pulled, inside folder "test-network" there is a script that starts the system:
+
+
+	 startSystem.sh
+
+
+3. Inside folder "openrev-gateway-api" there is two types of docker compose files:
+	- docker-compose.yaml used for local development that builds docker image and runs it.
+	- docker-compose.staging.yml that uses docker image pushed to dockerhub.com. The same image will be used for proxy server runned inside k8 cluster.
+	
+

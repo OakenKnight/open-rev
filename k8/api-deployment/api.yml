@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: api
+  template:
+    metadata:
+      labels:
+        name: api
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mypvc
+      containers:
+        - name: api
+          stdin: true
+          tty: true
+          resources:
+            limits:
+              memory: "450Mi"
+              cpu: "400m"
+            requests:
+              memory: "400Mi"
+              cpu: "300m"
+          image: oakenknight/openrev-gateway-api:v2.1
+          imagePullPolicy: Always
+          env:
+          - name: MODE
+            value:  "development"
+          - name: IS_COMPOSE
+            value:  "true"
+          - name: GIN_MODE
+            value: "debug"
+          - name: MSP_ID
+            value:  "Org1MSP"
+          - name: MINIO_ACCESS_ID
+            value: "AzJsCCf3rgFLBEYl"
+          - name: MINIO_SECRET
+            value: "QJNB2tuuRY9Y3htZSI8SemC73uYhoXTx"
+          - name: MINIO_URL
+            value: "tenant-hl.minio-tenants:9000"
+          - name: MINIO_SSL
+            value: "false"
+          - name: MINIO_BUCKET
+            value: "testopenrev"
+          - name: MINIO_LOCATION
+            value: "us-east-1"
+          - name: PORT
+            value: "8080"
+          - name: CERT
+            value: "certs/api.crt"
+          - name: KEY
+            value: "certs/api.key"
+          - name: CHANNEL_NAME
+            value: "mychannel"
+          - name: CHAINCODE_NAME
+            value: "basic"
+          - name: PEER_ENDPOINT_DEVELOP 
+            value: "peer0-org1:7051"
+          - name: GATEWAY_PEER_DEVELOP
+            value: "peer0.org1.example.com"
+          - name: CRYPTO_PATH
+            value: "/organizations/peerOrganizations/org1.example.com"
+          - name: CERT_PATH
+            value: "/users/User1@org1.example.com/msp/signcerts/cert.pem"
+          - name: KEY_PATH
+            value: "/users/User1@org1.example.com/msp/keystore/"
+          - name: TLS_CERT_PATH
+            value: "/peers/peer0.org1.example.com/tls/ca.crt"
+          volumeMounts:
+            - name: data
+              mountPath: /organizations
+              subPath: organizations  
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api
+  name: api
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    name: api

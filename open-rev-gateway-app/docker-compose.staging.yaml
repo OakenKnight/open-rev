@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  open-rev:
+    image: oakenknight/openrev-gateway-api:v2.1
+    ports:
+      - 3030:3030
+    restart: on-failure
+    environment:
+      MODE: "development"
+      IS_COMPOSE: "true"
+      GIN_MODE: "debug"
+      MSP_ID: "Org3MSP"
+      PORT: 3030
+      CERT: "certs/api.crt"
+      KEY: "certs/api.key"
+      CHANNEL_NAME: "mychannel"
+      CHAINCODE_NAME: "basic"
+      PEER_ENDPOINT_DEVELOP: "peer1.org3.example.com:11151"
+      GATEWAY_PEER_DEVELOP: "peer1.org3.example.com"
+      CRYPTO_PATH: "hyperledger-crypto-materials/org3.example.com"
+      CERT_PATH: "/users/User1@org3.example.com/msp/signcerts/cert.pem"
+      KEY_PATH: "/users/User1@org3.example.com/msp/keystore/"
+      TLS_CERT_PATH: "/peers/peer1.org3.example.com/tls/ca.crt"
+      MINIO_ACCESS_ID: "AzJsCCf3rgFLBEYl"
+      MINIO_SECRET: "QJNB2tuuRY9Y3htZSI8SemC73uYhoXTx"
+      MINIO_URL: "host.docker.internal:9000"
+      MINIO_SSL: "false"
+      MINIO_BUCKET: "testopenrev"
+      MINIO_LOCATION: "us-east-1"
+    volumes:
+      - ./hyperledger-crypto-materials:/root/hyperledger-crypto-materials
+      - ./certs:/root/certs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - openrev_api_net
+networks:
+  openrev_api_net:
+    external:
+      name: openrev-net
+    
+
+
+
