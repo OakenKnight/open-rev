@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	//"github.com/hyperledger/fabric-chaincode-go/shim"
-	//"os"
+	// "github.com/hyperledger/fabric-chaincode-go/shim"
+	// "os"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	domain "open-rev.com/domain"
 )
@@ -28,7 +28,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 			ID: "helenab90453b68d0f40280391anisic", 
 			Name: "Helena", 
 			Surname: "Anisic", 
-			Email: "sanja.palibrk@yahoo.com", 
+			Email: "hanisic@uns.ac.rs", 
 			RoleId: 4, 
 			Verified: true, 
 			Code: "", 
@@ -2127,28 +2127,28 @@ func main() {
 
 
 
-	// 	config := serverConfig{
-	// 		CCID:    os.Getenv("CHAINCODE_ID"),
-	// 		Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
-	// 	}
+		// config := serverConfig{
+		// 	CCID:    os.Getenv("CHAINCODE_ID"),
+		// 	Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
+		// }
 
-	// 	chaincode, err := contractapi.NewChaincode(&SmartContract{})
+		// chaincode, err := contractapi.NewChaincode(&SmartContract{})
 
-	// 	if err != nil {
-	// 		log.Panicf("error create openrev chaincode: %s", err)
-	// 	}
+		// if err != nil {
+		// 	log.Panicf("error create openrev chaincode: %s", err)
+		// }
 
-	// 	server := &shim.ChaincodeServer{
-	// 		CCID:    config.CCID,
-	// 		Address: config.Address,
-	// 		CC:      chaincode,
-	// 		TLSProps: shim.TLSProperties{
-	// 			Disabled: true,
-	// 		},
-	// 	}
-	// 	if err := server.Start(); err != nil {
-	// 		log.Panicf("error starting open-rev chaincode: %s", err)
-	// 	}
+		// server := &shim.ChaincodeServer{
+		// 	CCID:    config.CCID,
+		// 	Address: config.Address,
+		// 	CC:      chaincode,
+		// 	TLSProps: shim.TLSProperties{
+		// 		Disabled: true,
+		// 	},
+		// }
+		// if err := server.Start(); err != nil {
+		// 	log.Panicf("error starting open-rev chaincode: %s", err)
+		// }
 	
 
 }

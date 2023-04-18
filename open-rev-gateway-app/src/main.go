@@ -58,10 +58,10 @@ func main() {
 	network := gateway.GetNetwork(cfg.ChannelName)
 	contract := network.GetContract(cfg.ChaincodeName)
 
-	//if cfg.Mode == "development" && cfg.IsCompose == true {
-	log.Println("Initializing ledger:")
-	initLedger(contract)
-	//}
+	if cfg.Mode == "development" && cfg.IsCompose == true {
+		log.Println("Initializing ledger:")
+		initLedger(contract)
+	}
 
 	// TODO: Implement fail safe mechanism with exponential retries in case of pod being down
 	minioClient, err := minio.New(cfg.MinioUrl, &minio.Options{
