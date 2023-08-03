@@ -1137,7 +1137,6 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 	var totalMark float32
 	totalMark = 0.0
 	counter := 0
-	log.Printf("VELICINA LISTE SCIWORKS BY USER %d",len(sciWorksByUser))
 	for _, sciWork := range sciWorksByUser {
 		avgMarkForSciWork, err := s.GetScientificWorkAvgMark(ctx, sciWork.ID)
 		if err != nil {
@@ -1162,7 +1161,6 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 
 	totalRevMark := 0
 	counter = 0
-	log.Printf("VELICINA LISTE revs BY USER %d",len(revsByUser))
 
 	for _, rev := range revsByUser {
 		totalRevMark += rev.Assessment
@@ -1183,7 +1181,6 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 	if err != nil {
 		return nil, fmt.Errorf("Error getting all rev quality assets")
 	}
-	log.Printf("VELICINA LISTE revq BY USER %d",len(allRevsQ))
 
 	for _, rev := range revsByUser {
 		for _, revQ := range allRevsQ {
