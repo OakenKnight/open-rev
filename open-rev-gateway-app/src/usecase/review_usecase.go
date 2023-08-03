@@ -17,7 +17,7 @@ type reviewUsecase struct {
 }
 
 func (r *reviewUsecase) DeleteReview(context context.Context, contract client.Contract, id string) error {
-	log.Println("Evaluate Transaction: DeleteReview, function returns error if not successful")
+	log.Println("Submit Transaction: DeleteReview, function returns error if not successful")
 	_, err := contract.SubmitTransaction("DeleteReviewAsset", id)
 	if err != nil {
 		return helper.LedgerErrorHandler(&contract, err)

@@ -34,7 +34,7 @@ func (r *userUsecase) GetAllUsersWithDetails(context context.Context, contract c
 }
 
 func (r *userUsecase) DeleteOpenRevUser(context context.Context, contract client.Contract, id string) error {
-	log.Println("Evaluate Transaction: DeleteOpenRevUserAsset, function returns error if not successful")
+	log.Println("Submit Transaction: DeleteOpenRevUserAsset, function returns error if not successful")
 	_, err := contract.SubmitTransaction("DeleteOpenRevUserAsset", id)
 	if err != nil {
 		return helper.LedgerErrorHandler(&contract, err)

@@ -16,7 +16,7 @@ type areaUsecase struct {
 }
 
 func (a *areaUsecase) AddArea(context context.Context, contract client.Contract, areaDto dto.AddAreaDto) error {
-	log.Println("Evaluate Transaction: CreateAreaAsset, function returns error if not successful")
+	log.Println("Submit Transaction: CreateAreaAsset, function returns error if not successful")
 	ID := uuid.New().String()
 
 	_, err := contract.SubmitTransaction("CreateAreaAsset", ID, areaDto.Name)
@@ -26,7 +26,7 @@ func (a *areaUsecase) AddArea(context context.Context, contract client.Contract,
 	return nil
 }
 func (a *areaUsecase) AddSubArea(context context.Context, contract client.Contract, areaDto dto.AddSubAreaDto) error {
-	log.Println("Evaluate Transaction: CreateSubAreaAsset, function returns error if not successful")
+	log.Println("Submit Transaction: CreateSubAreaAsset, function returns error if not successful")
 	ID := uuid.New().String()
 
 	_, err := contract.SubmitTransaction("CreateSubAreaAsset", ID, areaDto.Name, areaDto.AreaId)
@@ -51,7 +51,7 @@ func (a *areaUsecase) GetAllSubAreas(context context.Context, contract client.Co
 	return subareas, nil
 }
 func (a *areaUsecase) DeleteArea(context context.Context, contract client.Contract, id string) error {
-	log.Println("Evaluate Transaction: DeleteAreaAsset, function returns error if not successful")
+	log.Println("Submit Transaction: DeleteAreaAsset, function returns error if not successful")
 	_, err := contract.SubmitTransaction("DeleteAreaAsset", id)
 	if err != nil {
 		return helper.LedgerErrorHandler(&contract, err)
@@ -59,7 +59,7 @@ func (a *areaUsecase) DeleteArea(context context.Context, contract client.Contra
 	return nil
 }
 func (a *areaUsecase) DeleteSubArea(context context.Context, contract client.Contract, id string) error {
-	log.Println("Evaluate Transaction: DeleteSubArea, function returns error if not successful")
+	log.Println("Submit Transaction: DeleteSubArea, function returns error if not successful")
 	_, err := contract.SubmitTransaction("DeleteSubAreaAsset", id)
 	if err != nil {
 		return helper.LedgerErrorHandler(&contract, err)
