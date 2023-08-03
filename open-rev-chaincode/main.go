@@ -35,6 +35,8 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 			Type: "user",
 			IsDeleted: false		},
 		{ID: "14c3441fdcdf0cf67a7db7aaa9c81ffe", Name: "Aleksandar", Surname: "Ignjatijevic", Email: "alexignjat1998@gmail.com", RoleId: 3, Verified: true, Code: "", Type: "user", IsDeleted: false	},
+		{ID: "123", Name: "PERA", Surname: "PERIC", Email: "blabla@gmail.com", RoleId: 3, Verified: true, Code: "", Type: "user", IsDeleted: false	},
+		
 	}
 
 	roleAssets := []domain.Role{
@@ -1135,7 +1137,6 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 	var totalMark float32
 	totalMark = 0.0
 	counter := 0
-
 	for _, sciWork := range sciWorksByUser {
 		avgMarkForSciWork, err := s.GetScientificWorkAvgMark(ctx, sciWork.ID)
 		if err != nil {
@@ -1146,7 +1147,8 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 		}
 		totalMark += avgMarkForSciWork
 	}
-	if totalMark == 0.0 {
+	
+	if totalMark == 0.0 || counter ==0 {
 		openRevUserAsset.AvgMark = 0.0
 	} else {
 		openRevUserAsset.AvgMark = totalMark / float32(counter)
@@ -1163,19 +1165,9 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 	for _, rev := range revsByUser {
 		totalRevMark += rev.Assessment
 		counter++
-		//
-		//avgRevQuality, err := s.GetAverageMarkForReview(ctx, rev.ID)
-		//if err != nil {
-		//	return nil, fmt.Errorf("Error getting review quality for review %s", rev.ID)
-		//}
-		//
-		//totalRevQualityMark += avgRevQuality
-		//if avgRevQuality != 0.0 {
-		//	counter1++
-		//}
-
 	}
-	if totalRevMark == 0.0 {
+
+	if totalRevMark == 0.0 || counter ==0 {
 		openRevUserAsset.AvgReview = 0.0
 	} else {
 		openRevUserAsset.AvgReview = float32(totalRevMark) / float32(counter)
@@ -1189,6 +1181,7 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 	if err != nil {
 		return nil, fmt.Errorf("Error getting all rev quality assets")
 	}
+
 	for _, rev := range revsByUser {
 		for _, revQ := range allRevsQ {
 			if revQ.ReviewId == rev.ID {
@@ -1198,7 +1191,7 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 		}
 	}
 
-	if totalRevQualityMark == 0.0 {
+	if totalRevQualityMark == 0.0 || counter== 0 {
 		openRevUserAsset.AvgRevQuality = 0.0
 	} else {
 		openRevUserAsset.AvgRevQuality = totalRevQualityMark / float32(counter)
@@ -1210,10 +1203,10 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 	}
 
 	openRevUserAsset.AvgMyRevsQuality = userAvgMark
-	openRevUserAsset.ReviewsCount = len(revsByUser)
+	openRevUserAsset.ReviewsCount =  len(revsByUser)
 	openRevUserAsset.WorksCount = len(sciWorksByUser)
 	openRevUserAsset.IsAdmin = openRevUserAsset.RoleId == 3
-
+	openRevUserAsset.ID = id
 	return &openRevUserAsset, nil
 }
 
@@ -1501,8 +1494,8 @@ func (s *SmartContract) ReadAllReviewsByOpenRevUserAssets(ctx contractapi.Transa
 	}
 	defer resultsIterator.Close()
 
-	var assets []*domain.Review
-	//assets := make([]*domain.Review, 0)
+	// var assets []*domain.Review
+	assets := make([]*domain.Review, 0)
 
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
@@ -1843,7 +1836,8 @@ func (s *SmartContract) ReadAllReviewQualityAssets(ctx contractapi.TransactionCo
 	}
 	defer resultsIterator.Close()
 
-	var assets []*domain.ReviewQuality
+	assets := make([]*domain.ReviewQuality, 0)
+
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
 		if err != nil {
@@ -1928,7 +1922,7 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 				totalRevMark += rev.Assessment
 				counter++
 			}
-			if totalRevMark == 0.0 {
+			if totalRevMark == 0.0 || counter ==0{
 				openRevUserAsset.AvgReview = 0.0
 			} else {
 				openRevUserAsset.AvgReview = float32(totalRevMark) / float32(counter)
@@ -1951,7 +1945,7 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 				}
 			}
 		
-			if totalRevQualityMark == 0.0 {
+			if totalRevQualityMark == 0.0 || counter == 0{
 				openRevUserAsset.AvgRevQuality = 0.0
 			} else {
 				openRevUserAsset.AvgRevQuality = totalRevQualityMark / float32(counter)
@@ -2035,8 +2029,11 @@ func (s *SmartContract) GetAverageQualityMarkForUser(ctx contractapi.Transaction
 			num++
 		}
 	}
-
-	return float32((sum * 1.0) / (num * 1.0)), nil
+	var retVal float32
+	if num != 0 {
+		retVal = float32((sum * 1.0) / (num * 1.0))
+	}
+	return retVal, nil
 }
 
 func (s *SmartContract) DeleteScientificWorkAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.ScientificWork, error){

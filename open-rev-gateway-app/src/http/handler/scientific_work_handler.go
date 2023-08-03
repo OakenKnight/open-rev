@@ -199,6 +199,7 @@ func (s *scientificWorkHandler) CreateScientificWork(ctx *gin.Context) {
 		panic(err)
 	}
 	filePath := ""
+	h.Filename = strings.ReplaceAll(h.Filename, " ", "")
 	var out *os.File
 	if cfg.IsCompose {
 		out, err = os.Create("src/public/" + h.Filename)

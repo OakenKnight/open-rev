@@ -58,7 +58,7 @@ func main() {
 	network := gateway.GetNetwork(cfg.ChannelName)
 	contract := network.GetContract(cfg.ChaincodeName)
 
-	if cfg.Mode == "development" && cfg.IsCompose == true {
+	if cfg.Mode == "development" {
 		log.Println("Initializing ledger:")
 		initLedger(contract)
 	}
