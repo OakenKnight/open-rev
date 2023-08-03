@@ -50,44 +50,6 @@ func (s *scientificWorkHandler) DownloadScientificWork(ctx *gin.Context) {
 		ctx.Data(http.StatusOK, "application/octet-stream", b[0:num])
 		return
 	}
-	//
-	//objInfo, err := object.Stat()
-	//if err != nil {
-	//	ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Error getting file stats"})
-	//	return
-	//}
-
-	//cfg, err := config.GetConfig("./.env")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//filePath := ""
-	//if cfg.IsCompose {
-	//	filePath = "src/public/" + objInfo.Key
-	//} else {
-	//	filePath = "public/" + objInfo.Key
-	//}
-	//
-	//
-	//localFile, err := os.Create("./public/" + objInfo.Key)
-	//if err != nil {
-	//	fmt.Println(err)
-	//	ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating file on local system"})
-	//	return
-	//}
-	//defer localFile.Close()
-	//
-	//if _, err = io.Copy(localFile, object); err != nil {
-	//	fmt.Println(err)
-	//	ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Error while saving file to local"})
-	//	return
-	//}
-	//ctx.Header("Content-Description", "File Transfer")
-	//ctx.Header("Content-Transfer-Encoding", "binary")
-	//ctx.Header("Content-Disposition", "attachment; filename="+filename)
-	//ctx.Header("Content-Type", "application/octet-stream")
-	//ctx.File(filePath)
-
 }
 
 const (
