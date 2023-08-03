@@ -110,41 +110,6 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	// establish minio connection
-	// TODO: Implement fail safe mechanism with exponential retries in case of pod being down
-
-	//// Upload the zip file
-	//objectName := "PDAJ-Projekat.pdf"
-	//filePath := "../PDAJ-Projekat.pdf"
-	//contentType := "application/pdf"
-
-	// Upload the zip file with FPutObject
-	//info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//
-	//log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
-	//
-	//object, err := minioClient.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//defer object.Close()
-	//
-	//localFile, err := os.Create("../local-file.pdf")
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//defer localFile.Close()
-	//
-	//if _, err = io.Copy(localFile, object); err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-
 	// TODO: run on TLS depending on env variable
 	if cfg.Mode == "Production" {
 		err = r.RunTLS(":443", cfg.GinCertPath, cfg.GinKeyPath)
