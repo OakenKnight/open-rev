@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-staging
+  namespace: openrev-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: api-staging
+  template:
+    metadata:
+      labels:
+        name: api-staging
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mypvc
+      containers:
+        - name: api-staging
+          stdin: true
+          tty: true
+          ports:
+            - name: web
+              containerPort: 80
+          resources:
+            limits:
+              memory: "450Mi"
+              cpu: "400m"
+            requests:
+              memory: "400Mi"
+              cpu: "300m"
+              
+          image: oakenknight/openrev-gateway-api:v2.2
+          imagePullPolicy: Always
+          env:
+          - name: MODE
+            value:  "staging"
+          - name: IS_COMPOSE
+            value:  "true"
+          - name: GIN_MODE
+            value: "debug"
+          - name: MSP_ID
+            value:  "Org1MSP"
+          - name: MINIO_ACCESS_ID
+            value: "AzJsCCf3rgFLBEYl"
+          - name: MINIO_SECRET
+            value: "QJNB2tuuRY9Y3htZSI8SemC73uYhoXTx"
+          - name: MINIO_URL
+            value: "tenant-hl.minio-tenants:9000"
+          - name: MINIO_SSL
+            value: "false"
+          - name: MINIO_BUCKET
+            value: "testopenrev"
+          - name: MINIO_LOCATION
+            value: "us-east-1"
+          - name: PORT
+            value: "80"
+          - name: CERT
+            value: "certs/api.crt"
+          - name: KEY
+            value: "certs/api.key"
+          - name: CHANNEL_NAME
+            value: "stagingv1"
+          - name: CHAINCODE_NAME
+            value: "basic"
+          - name: PEER_ENDPOINT_DEVELOP 
+            value: "peer0-org1:7051"
+          - name: GATEWAY_PEER_DEVELOP
+            value: "peer0.org1.example.com"
+          - name: CRYPTO_PATH
+            value: "/organizations/peerOrganizations/org1.example.com"
+          - name: CERT_PATH
+            value: "/users/User1@org1.example.com/msp/signcerts/cert.pem"
+          - name: KEY_PATH
+            value: "/users/User1@org1.example.com/msp/keystore/"
+          - name: TLS_CERT_PATH
+            value: "/peers/peer0.org1.example.com/tls/ca.crt"
+          volumeMounts:
+            - name: data
+              mountPath: /organizations
+              subPath: organizations  
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api-staging
+  name: api-staging
+  namespace: openrev-staging
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 80
+      targetPort: web
+      protocol: TCP
+  # ports:
+  # - port: 8080
+  #   protocol: TCP
+  #   targetPort: 8080
+    
+  selector:
+    name: api-staging

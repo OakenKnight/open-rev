@@ -1,0 +1,34 @@
+peer0-org1
+basic:98ea84a78a3616a989161264a36297ab22abada1a073694b2bf60fd58b418b31
+
+peer0-org2
+basic:7fc6a83532ac132e5696e81b599a912443fa9c4428c18737d0f59c3d136c38ac
+
+peer0-org3
+basic:85ef2f3ebfc30a5b61f881694cb4a6d33799fc2106871eb58a8406347d837de4
+
+peer lifecycle chaincode approveformyorg --channelID stagingv1 --name basic --version 1.0 --init-required --package-id basic:98ea84a78a3616a989161264a36297ab22abada1a073694b2bf60fd58b418b31 --sequence 1 -o orderer:7050 --tls --cafile $ORDERER_CA 
+
+peer lifecycle chaincode approveformyorg --channelID stagingv1 --name basic --version 1.0 --init-required --package-id basic:7fc6a83532ac132e5696e81b599a912443fa9c4428c18737d0f59c3d136c38ac --sequence 1 -o orderer:7050 --tls --cafile $ORDERER_CA
+
+peer lifecycle chaincode approveformyorg --channelID stagingv1 --name basic --version 1.0 --init-required --package-id basic:85ef2f3ebfc30a5b61f881694cb4a6d33799fc2106871eb58a8406347d837de4 --sequence 1 -o orderer:7050 --tls --cafile $ORDERER_CA
+
+
+
+
+checkcommitreadiness
+peer lifecycle chaincode checkcommitreadiness --channelID stagingv1 --name basic --version 1.0 --init-required --sequence 1 -o -orderer:7050 --tls --cafile $ORDERER_CA
+
+
+commit chaincode
+peer lifecycle chaincode commit -o orderer:7050 --channelID stagingv1 --name basic --version 1.0 --sequence 1 --init-required --tls true --cafile $ORDERER_CA --peerAddresses peer0-org1:7051 --tlsRootCertFiles /organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0-org2:7051 --tlsRootCertFiles /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt --peerAddresses peer0-org3:7051 --tlsRootCertFiles /organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+
+
+transaction initdb
+peer chaincode invoke -o orderer:7050 --isInit --tls true --cafile $ORDERER_CA -C stagingv1 -n basic --peerAddresses peer0-org1:7051 --tlsRootCertFiles /organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0-org2:7051 --tlsRootCertFiles /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt --peerAddresses peer0-org3:7051 --tlsRootCertFiles /organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt -c '{"Args":["InitLedger"]}' --waitForEvent
+
+
+
+
+query chaincode
+peer chaincode query -C stagingv1 -n basic -c '{"Args":["ReadAllOpenRevUserAssets"]}'

@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+    name: orderer5
+    namespace: openrev-staging
+    labels:
+        run: orderer5
+spec:
+    selector:
+        name: orderer5
+    type: ClusterIP
+    ports:
+        - protocol: TCP
+          port: 7050
+          name: grpc

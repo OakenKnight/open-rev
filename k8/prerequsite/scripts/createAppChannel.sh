@@ -1,0 +1,2 @@
+CHANNEL=$1
+peer channel create -o orderer:7050 -c ${CHANNEL} -f ./channel-artifacts/${CHANNEL}.tx --outputBlock ./channel-artifacts/${CHANNEL}.block --tls --cafile /organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem

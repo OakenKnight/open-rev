@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-staging-ingress
+  namespace: openrev-staging
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - host: api-staging.com
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-staging
+            port:
+              name: web
+
+# spec:
+#   rules:
+#     - host: api-staging.com
+#     - http:
+#         paths:
+#           - path: /apiv1
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: api-staging
+#                 port:
+#                   number: 8080
+
+
+
