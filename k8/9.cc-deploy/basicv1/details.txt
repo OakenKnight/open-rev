@@ -1,0 +1,23 @@
+peer0 org1
+basicv1:4834b9eb7598e6429f4467fde1b8f92516aa18d904c76d531f5244f4c23186db
+
+peer0 org2
+basicv1:02718e883a1007a48985ae97e1e5a458f4ea354ce6522a2b781f890ed7ce1286
+
+peer0 org3
+basicv1:6815d5ab4c8f73b72522f07533a5ee9c8be75bd27cc8559260740dd8526a17f8
+
+
+peer lifecycle chaincode approveformyorg --channelID mychannel --name basicv1 --version 1.0 --init-required --package-id basicv1:4834b9eb7598e6429f4467fde1b8f92516aa18d904c76d531f5244f4c23186db --sequence 1 -o orderer:7050 --tls --cafile $ORDERER_CA 
+
+peer lifecycle chaincode approveformyorg --channelID mychannel --name basicv1 --version 1.0 --init-required --package-id basicv1:02718e883a1007a48985ae97e1e5a458f4ea354ce6522a2b781f890ed7ce1286 --sequence 1 -o orderer:7050 --tls --cafile $ORDERER_CA 
+
+peer lifecycle chaincode approveformyorg --channelID mychannel --name basicv1 --version 1.0 --init-required --package-id basicv1:6815d5ab4c8f73b72522f07533a5ee9c8be75bd27cc8559260740dd8526a17f8 --sequence 1 -o orderer:7050 --tls --cafile $ORDERER_CA 
+
+
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name basicv1 --version 1.0 --init-required --sequence 1 -o -orderer:7050 --tls --cafile $ORDERER_CA
+
+
+peer lifecycle chaincode commit -o orderer:7050 --channelID mychannel --name basicv1 --version 1.0 --sequence 1 --init-required --tls true --cafile $ORDERER_CA --peerAddresses peer0-org1:7051 --tlsRootCertFiles /organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0-org2:7051 --tlsRootCertFiles /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt --peerAddresses peer0-org3:7051 --tlsRootCertFiles /organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+
+peer chaincode invoke -o orderer:7050 --isInit --tls true --cafile $ORDERER_CA -C mychannel -n basicv1 --peerAddresses peer0-org1:7051 --tlsRootCertFiles /organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0-org2:7051 --tlsRootCertFiles /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt --peerAddresses peer0-org3:7051 --tlsRootCertFiles /organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt -c '{"Args":["InitLedger"]}' --waitForEvent

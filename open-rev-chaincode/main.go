@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	// "github.com/hyperledger/fabric-chaincode-go/shim"
-	// "os"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
+	"os"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	domain "open-rev.com/domain"
 )
@@ -2113,39 +2113,39 @@ func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInte
 func main() {
 
 
-	assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
-	if err != nil {
-		log.Panicf("Error creating open-rev chaincode: %v", err)
-	}
+	// assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
+	// if err != nil {
+	// 	log.Panicf("Error creating open-rev chaincode: %v", err)
+	// }
 	
-	if err := assetChaincode.Start(); err != nil {
-		log.Panicf("Error starting open-rev chaincode: %v", err)
-	}
+	// if err := assetChaincode.Start(); err != nil {
+	// 	log.Panicf("Error starting open-rev chaincode: %v", err)
+	// }
 
 
 
-		// config := serverConfig{
-		// 	CCID:    os.Getenv("CHAINCODE_ID"),
-		// 	Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
-		// }
+		config := serverConfig{
+			CCID:    os.Getenv("CHAINCODE_ID"),
+			Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
+		}
 
-		// chaincode, err := contractapi.NewChaincode(&SmartContract{})
+		chaincode, err := contractapi.NewChaincode(&SmartContract{})
 
-		// if err != nil {
-		// 	log.Panicf("error create openrev chaincode: %s", err)
-		// }
+		if err != nil {
+			log.Panicf("error create openrev chaincode: %s", err)
+		}
 
-		// server := &shim.ChaincodeServer{
-		// 	CCID:    config.CCID,
-		// 	Address: config.Address,
-		// 	CC:      chaincode,
-		// 	TLSProps: shim.TLSProperties{
-		// 		Disabled: true,
-		// 	},
-		// }
-		// if err := server.Start(); err != nil {
-		// 	log.Panicf("error starting open-rev chaincode: %s", err)
-		// }
+		server := &shim.ChaincodeServer{
+			CCID:    config.CCID,
+			Address: config.Address,
+			CC:      chaincode,
+			TLSProps: shim.TLSProperties{
+				Disabled: true,
+			},
+		}
+		if err := server.Start(); err != nil {
+			log.Panicf("error starting open-rev chaincode: %s", err)
+		}
 	
 
 }

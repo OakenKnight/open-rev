@@ -32,7 +32,7 @@ spec:
               memory: "400Mi"
               cpu: "300m"
               
-          image: oakenknight/openrev-gateway-api:v2.2
+          image: oakenknight/openrev-gateway-api:v2.3
           imagePullPolicy: Always
           env:
           - name: MODE
@@ -62,9 +62,9 @@ spec:
           - name: KEY
             value: "certs/api.key"
           - name: CHANNEL_NAME
-            value: "stagingv1"
+            value: "mychannel"
           - name: CHAINCODE_NAME
-            value: "basic"
+            value: "basicv1"
           - name: PEER_ENDPOINT_DEVELOP 
             value: "peer0-org1:7051"
           - name: GATEWAY_PEER_DEVELOP

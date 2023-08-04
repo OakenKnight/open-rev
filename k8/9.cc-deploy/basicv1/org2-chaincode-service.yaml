@@ -2,14 +2,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: basic-org1
+  name: basicv1-org2
   namespace: openrev-staging
   labels:
-    app: basic-org1
+    app: basicv1-org2
 spec:
   ports:
     - name: grpc
       port: 7052
       targetPort: 7052
   selector:
-    app: chaincode-basic-org1
+    app: chaincode-basicv1-org2
