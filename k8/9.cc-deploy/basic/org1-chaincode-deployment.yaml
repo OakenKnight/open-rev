@@ -19,7 +19,7 @@ spec:
         app: chaincode-basic-org1
     spec:
       containers:
-        - image: oakenknight/openrev-cc:v1.2
+        - image: oakenknight/openrev-cc:v1.3
           imagePullPolicy: Always
           name: chaincode-basic-org1
           env:
