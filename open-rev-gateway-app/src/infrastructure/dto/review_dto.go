@@ -21,5 +21,3 @@ type ReviewForDetailsDTO struct {
 	ScientificWorkId string   `json:"scientific_work_id"`
 	UsersRevQuality  []string `json:"users_rev_quality"`
 }
-
-//

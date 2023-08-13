@@ -31,7 +31,7 @@ func (u *userHandler) GetTopReviewers(ctx *gin.Context) {
 	})
 	var top []*dto.TopReviewerDto
 	for _, user := range users {
-		top = append(top, &dto.TopReviewerDto{AvgReview: user.AvgMyRevsQuality, User: user.Name + " " + user.Surname, Guid: user.ID})
+		top = append(top, &dto.TopReviewerDto{AvgReview: user.AvgMyRevsQuality, User: user.Name + " " + user.Surname, Guid: user.ID, Email: user.Email, RoleId: user.RoleId})
 	}
 	ctx.JSON(http.StatusOK, top)
 }
@@ -46,7 +46,7 @@ func (u *userHandler) GetTopAuthors(ctx *gin.Context) {
 	})
 	var top []*dto.TopAuthorDto
 	for _, user := range users {
-		top = append(top, &dto.TopAuthorDto{AvgRate: user.AvgMark, User: user.Name + " " + user.Surname, Guid: user.ID})
+		top = append(top, &dto.TopAuthorDto{AvgRate: user.AvgMark, User: user.Name + " " + user.Surname, Guid: user.ID, Email: user.Email, RoleId: user.RoleId})
 	}
 	ctx.JSON(http.StatusOK, top)
 }

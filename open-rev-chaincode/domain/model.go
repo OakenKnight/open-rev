@@ -136,6 +136,7 @@ type ScientificWorkDetailsDTO struct {
 type ScientificWorkForSortingDTO struct {
 	ID string `json:"guid"`
 	Title string `json:"title"`
+	SubAreaId   string    `json:"sub_area_id"`
 	PublishDate string `json:"publish_date"`
 	Abstract string `json:"abstract"`
 	Keywords string `json:"keywords"`

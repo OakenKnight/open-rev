@@ -16,6 +16,63 @@ type reviewUsecase struct {
 	Contract *client.Contract
 }
 
+func (r *reviewUsecase) GetAllReviewQualities(ctx context.Context, contract client.Contract) ([]*domain.ReviewQuality, error) {
+	log.Println("Evaluate Transaction: ReadAllReviewQualityAssets, function returns all the reviews on the ledger")
+
+	evaluateResult, err := contract.EvaluateTransaction("ReadAllReviewQualityAssets")
+	if err != nil {
+		return nil, helper.LedgerErrorHandler(&contract, err)
+	}
+
+	var reviewsQualities []*domain.ReviewQuality
+
+	err = json.Unmarshal(evaluateResult, &reviewsQualities)
+	if err != nil {
+		return nil, err
+	}
+
+	return reviewsQualities, nil
+}
+
+func (r *reviewUsecase) FixReviewId(context context.Context, contract client.Contract, id string) error {
+	log.Println("Submit Transaction: DeleteOffReview, function returns error if not successful")
+	_, err := contract.SubmitTransaction("DeleteOffReview", id)
+	if err != nil {
+		return helper.LedgerErrorHandler(&contract, err)
+	}
+	return nil
+}
+
+func (r *reviewUsecase) FixReviewQualityId(context context.Context, contract client.Contract, id string) error {
+	log.Println("Submit Transaction: DeleteOffReviewQuality, function returns error if not successful")
+	_, err := contract.SubmitTransaction("DeleteOffReviewQuality", id)
+	if err != nil {
+		return helper.LedgerErrorHandler(&contract, err)
+	}
+	return nil
+}
+
+func (r *reviewUsecase) GetAllReviewQualityByReview(ctx context.Context, contract client.Contract, reviewId string) ([]*domain.ReviewQuality, error) {
+	log.Printf("Evaluate Transaction: ReadAllReviewsQualityByReviewAssets, function returns all reviews for scientific work %s on the ledger", reviewId)
+
+	evaluateResult, err := contract.EvaluateTransaction("ReadAllReviewsQualityByReviewAssets", reviewId)
+
+	if err != nil {
+		return nil, helper.LedgerErrorHandler(&contract, err)
+	}
+
+	var reviews []*domain.ReviewQuality
+	if evaluateResult == nil {
+		return make([]*domain.ReviewQuality, 0), nil
+	}
+	err = json.Unmarshal(evaluateResult, &reviews)
+	if err != nil {
+		return nil, err
+	}
+
+	return reviews, nil
+}
+
 func (r *reviewUsecase) DeleteReview(context context.Context, contract client.Contract, id string) error {
 	log.Println("Submit Transaction: DeleteReview, function returns error if not successful")
 	_, err := contract.SubmitTransaction("DeleteReviewAsset", id)
@@ -130,8 +187,13 @@ type ReviewUsecase interface {
 	CreateReview(ctx context.Context, contract client.Contract, review dto.ReviewDTO) (*domain.Review, error)
 	CreateReviewQuality(ctx context.Context, contract client.Contract, review *dto.ReviewQualityDTO) (*domain.ReviewQuality, error)
 	DeleteReview(context context.Context, contract client.Contract, id string) error
+	FixReviewId(context context.Context, contract client.Contract, id string) error
+	FixReviewQualityId(context context.Context, contract client.Contract, id string) error
+	GetAllReviewQualities(ctx context.Context, contract client.Contract) ([]*domain.ReviewQuality, error)
+	GetAllReviewQualityByReview(ctx context.Context, contract client.Contract, reviewId string) ([]*domain.ReviewQuality, error)
 }
 
 func NewReviewUsecase(contract *client.Contract) ReviewUsecase {
 	return &reviewUsecase{Contract: contract}
+
 }
