@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	// "github.com/hyperledger/fabric-chaincode-go/shim"
-	// "os"
+	"strings"
+	"github.com/hyperledger/fabric-chaincode-go/shim"
+	"os"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	domain "open-rev.com/domain"
 )
@@ -79,7 +80,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 		{ID: "067b502089fbf82146e4bf6b879326f2", Review: "Veoma dobra prica", Assessment: 5, Recommend: true, UserId: "helenab90453b68d0f40280391anisic", ScientificWorkId: "0bf60b871e8ff560573deb7c4c7d673f", Type: "review", IsDeleted: false},
 		{ID: "0f3fbf4ab0062a2089a1b0cd37a855fb", Review: "Losa prica", Assessment: 1, Recommend: false, UserId: "14c3441fdcdf0cf67a7db7aaa9c81ffe", ScientificWorkId: "0bf60b871e8ff560573deb7c4c7d673f", Type: "review", IsDeleted: false},
 
-		{ID: "13aeb21ca61481b3ab56154c7319470c	", Review: "Veoma dobra prica broj 3", Assessment: 4, Recommend: true, UserId: "14c3441fdcdf0cf67a7db7aaa9c81ffe", ScientificWorkId: "22d2e594f8239d49ae5851d09583756a", Type: "review", IsDeleted: false},
+		{ID: "13aeb21ca61481b3ab56154c7319470c", Review: "Veoma dobra prica broj 3", Assessment: 4, Recommend: true, UserId: "14c3441fdcdf0cf67a7db7aaa9c81ffe", ScientificWorkId: "22d2e594f8239d49ae5851d09583756a", Type: "review", IsDeleted: false},
 	}
 
 	reviewQualityAssets := []domain.ReviewQuality{
@@ -88,7 +89,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 		{ID: "aca9ab5f8eade613af0685df3af6f26b", Assessment: 1, UserId: "helenab90453b68d0f40280391anisic", ReviewId: "0f3fbf4ab0062a2089a1b0cd37a855fb", Type: "review-quality", IsDeleted: false},
 		{ID: "aca9ab5f8eade613af0685df3af6f23b", Assessment: 3, UserId: "14c3441fdcdf0cf67a7db7aaa9c81ffe", ReviewId: "0f3fbf4ab0062a2089a1b0cd37a855fb", Type: "review-quality", IsDeleted: false},
 
-		{ID: "d199e0e139ddac1696b4b35d8a1acd79	", Assessment: 3, UserId: "helenab90453b68d0f40280391anisic", ReviewId: "13aeb21ca61481b3ab56154c7319470c", Type: "review-quality", IsDeleted: false},
+		{ID: "d199e0e139ddac1696b4b35d8a1acd79", Assessment: 3, UserId: "helenab90453b68d0f40280391anisic", ReviewId: "13aeb21ca61481b3ab56154c7319470c", Type: "review-quality", IsDeleted: false},
 	}
 
 	for _, role := range roleAssets {
@@ -536,7 +537,7 @@ func (s *SmartContract) GetAllReviewersOnReview(ctx contractapi.TransactionConte
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "review-quality" && reviewId == asset.ReviewId {
+		if asset.Type == "review-quality" && reviewId ==  strings.TrimSpace(asset.ReviewId) {
 
 			userAsset, err := s.ReadOpenRevUserAsset(ctx, asset.UserId)
 			if err != nil {
@@ -944,7 +945,7 @@ func (s *SmartContract) OpenRevUserAssetExists(ctx contractapi.TransactionContex
 //	return false, nil
 //}
 
-func (s *SmartContract) ReviewExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+func (s *SmartContract) ReviewAssetExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	review, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
@@ -953,7 +954,7 @@ func (s *SmartContract) ReviewExists(ctx contractapi.TransactionContextInterface
 	return review != nil, nil
 }
 
-func (s *SmartContract) ReviewQualityExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+func (s *SmartContract) ReviewQualityAssetExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	reviewQ, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return false, fmt.Errorf("failed to read from world state: %v", err)
@@ -1262,6 +1263,7 @@ func (s *SmartContract) ReadAllReviewAssets(ctx contractapi.TransactionContextIn
 		if err != nil {
 			return nil, err
 		}
+		asset.ID = strings.TrimSpace(asset.ID)
 		if asset.Type == "review" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
@@ -1334,7 +1336,42 @@ func (s *SmartContract) ReadAllScientificWorksByUserAssets(ctx contractapi.Trans
 
 	return assets, nil
 }
+func (s *SmartContract) ReadAllReviewsQualityByReviewAssets(ctx contractapi.TransactionContextInterface, reviewId string) ([]*domain.ReviewQuality, error) {
+	exists, err := s.ReviewAssetExists(ctx, reviewId)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, fmt.Errorf("the review asset %s does not exist", reviewId)
+	}
 
+	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	//var assets []*domain.ScientificWork
+	assets := make([]*domain.ReviewQuality, 0)
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		var asset domain.ReviewQuality
+		err = json.Unmarshal(queryResponse.Value, &asset)
+		if err != nil {
+			return nil, err
+		}
+		asset.ID = strings.TrimSpace(asset.ID)
+		if (asset.Type == "review-quality") && (strings.TrimSpace(asset.ReviewId) == reviewId) && !asset.IsDeleted {
+			assets = append(assets, &asset)
+		}
+	}
+
+	return assets, nil
+}
 func (s *SmartContract) ReadScientificWorkDetails(ctx contractapi.TransactionContextInterface, id string) (*domain.ScientificWorkDetailsDTO, error) {
 	sciWorkJSON, err := ctx.GetStub().GetState(id)
 	if err != nil {
@@ -1382,7 +1419,7 @@ func (s *SmartContract) ReadScientificWorkDetails(ctx contractapi.TransactionCon
 				return nil, err
 			}
 
-			reviewDTO := domain.ReviewForDetailsDTO{ReviewId: rev.ID, Review: rev.Review, Assessment: strAss,
+			reviewDTO := domain.ReviewForDetailsDTO{ReviewId: rev.ID, Review: strings.TrimSpace(rev.Review), Assessment: strAss,
 				Recommend: strRec, UserId: rev.UserId, User: user.Name + " " + user.Surname, ScientificWorkId: rev.ScientificWorkId,
 				SumRevQuality: sumRevQ, CountRevQuality: countRevQ}
 
@@ -1577,7 +1614,7 @@ func (s *SmartContract) GetSumOfRevQualityByReview(ctx contractapi.TransactionCo
 			return -1, err
 		}
 
-		if (asset.Type == "review-quality") && (asset.ReviewId == id) {
+		if (asset.Type == "review-quality") && (strings.TrimSpace(asset.ReviewId) == id) {
 			sum += asset.Assessment
 		}
 
@@ -1606,7 +1643,7 @@ func (s *SmartContract) GetCountOfRevQualityByReview(ctx contractapi.Transaction
 			return -1, err
 		}
 
-		if (asset.Type == "review-quality") && (asset.ReviewId == id) {
+		if (asset.Type == "review-quality") && (strings.TrimSpace(asset.ReviewId) == id) {
 			num++
 		}
 
@@ -1634,7 +1671,7 @@ func (s *SmartContract) GetUsersOfRevQualityByReview(ctx contractapi.Transaction
 		if err != nil {
 			return nil, err
 		}
-		if (asset.Type == "review-quality") && (asset.ReviewId == id) {
+		if (asset.Type == "review-quality") && (strings.TrimSpace(asset.ReviewId) == id) {
 			usersArray = append(usersArray, asset.UserId)
 		}
 	}
@@ -1832,6 +1869,7 @@ func (s *SmartContract) ReadAllSubAreaAssets(ctx contractapi.TransactionContextI
 	return assets, nil
 }
 
+
 func (s *SmartContract) ReadAllReviewQualityAssets(ctx contractapi.TransactionContextInterface) ([]*domain.ReviewQuality, error) {
 
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -1853,7 +1891,8 @@ func (s *SmartContract) ReadAllReviewQualityAssets(ctx contractapi.TransactionCo
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "review-quality" && !asset.IsDeleted {
+		asset.ID = strings.TrimSpace(asset.ID)
+		if asset.Type == "review-quality" && !asset.IsDeleted{
 			assets = append(assets, &asset)
 		}
 	}
@@ -1890,6 +1929,8 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 				return nil, err
 			}
 			openRevUserAsset.ID = asset.ID
+			openRevUserAsset.Email = asset.Email
+			openRevUserAsset.RoleId = asset.RoleId
 			sciWorksByUser, err := s.ReadAllScientificWorksByUserAssets(ctx, asset.ID)
 			if err != nil {
 				return nil, fmt.Errorf("Error getting sci works for user %s", asset.ID)
@@ -1999,7 +2040,7 @@ func (s *SmartContract) GetAverageMarkForReview(ctx contractapi.TransactionConte
 		if err != nil {
 			return -1, err
 		}
-		if (asset.Type == "review-quality") && (asset.ReviewId == revId) && !asset.IsDeleted {
+		if (asset.Type == "review-quality") && (strings.TrimSpace(asset.ReviewId) == revId) && !asset.IsDeleted {
 			sum += asset.Assessment
 			num++
 		}
@@ -2082,8 +2123,133 @@ func (s *SmartContract) DeleteScientificWorkAsset(ctx contractapi.TransactionCon
 
 	return &sci, nil
 }
+func (s *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+	assetJSON, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return false, fmt.Errorf("failed to read from world state: %v", err)
+	}
+
+	return assetJSON != nil, nil
+}
+
+func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface, id string) error {
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("the asset %s does not exist", id)
+	}
+
+	return ctx.GetStub().DelState(id)
+}
+
+func (s *SmartContract) DeleteOffReview(ctx contractapi.TransactionContextInterface, id string) error {
+	reviewAssetJson, err := ctx.GetStub().GetState(id+"\t")
+	if err != nil {
+		return fmt.Errorf("failed to read review from world state: %v", err)
+	}
+
+	if reviewAssetJson == nil {
+		return fmt.Errorf("the review asset %s does not exist", id)
+	}
+	
+	var rev domain.Review
+	err = json.Unmarshal(reviewAssetJson, &rev)
+	if err != nil {
+		return err
+	}
+
+	dto := domain.Review{ID: id, Review: rev.Review, Assessment: rev.Assessment, Recommend: rev.Recommend, UserId: rev.UserId,  
+		ScientificWorkId: rev.ScientificWorkId, Type: rev.Type, IsDeleted : false}
+
+	
+	reviewJson, err := json.Marshal(dto)
+	if err != nil {
+		return err
+	}
+
+	err1 := s.DeleteAsset(ctx,id+"\t")
+	if err1 != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(id, reviewJson)
+	if err != nil {
+		return fmt.Errorf("failed to put review to world state. %v", err)
+	}
+
+	return nil
+}
+
+func (s *SmartContract) DeleteOffReviewQuality(ctx contractapi.TransactionContextInterface, id string) error {
+
+	reviewAssetJson, err := ctx.GetStub().GetState(id+"\t")
+	if err != nil {
+		return fmt.Errorf("failed to read review quality from world state: %v", err)
+	}
+
+	if reviewAssetJson == nil {
+		return fmt.Errorf("the review quality asset %s does not exist", id)
+	}
+	
+	var rev domain.ReviewQuality
+	err = json.Unmarshal(reviewAssetJson, &rev)
+	if err != nil {
+		return err
+	}
+
+	dto := domain.ReviewQuality{ID: id, Assessment: rev.Assessment, UserId: rev.UserId,  
+		ReviewId: rev.ReviewId, Type: rev.Type, IsDeleted : false}
+
+	reviewJson, err := json.Marshal(dto)
+	if err != nil {
+		return err
+	}
+	err1 := s.DeleteAsset(ctx,id+"\t")
+	if err1 != nil {
+		return err
+	}
+
+	err = ctx.GetStub().PutState(id, reviewJson)
+	if err != nil {
+		return fmt.Errorf("failed to put review to world state. %v", err)
+	}
+
+	return nil
+}
+func (s *SmartContract) DeleteReviewQualityAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.ReviewQuality, error){
+	reviewQualityAssetJson, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read review from world state: %v", err)
+	}
+
+	if reviewQualityAssetJson == nil {
+		return nil, fmt.Errorf("the review quality asset %s does not exist", id)
+	}
+	
+	var rev domain.ReviewQuality
+	err = json.Unmarshal(reviewQualityAssetJson, &rev)
+	if err != nil {
+		return nil, err
+	}
 
 
+	dto := domain.ReviewQuality{ID: id, Assessment: rev.Assessment, UserId: rev.UserId,  
+		ReviewId: rev.ReviewId, Type: rev.Type, IsDeleted : true}
+
+	reviewJson, err := json.Marshal(dto)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ctx.GetStub().PutState(id, reviewJson)
+	if err != nil {
+		return nil, fmt.Errorf("failed to put review to world state. %v", err)
+	}
+
+	return &rev, nil
+}
 func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.Review, error){
 	reviewAssetJson, err := ctx.GetStub().GetState(id)
 	if err != nil {
@@ -2120,39 +2286,39 @@ func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInte
 func main() {
 
 
-	assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
-	if err != nil {
-		log.Panicf("Error creating open-rev chaincode: %v", err)
-	}
+	// assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
+	// if err != nil {
+	// 	log.Panicf("Error creating open-rev chaincode: %v", err)
+	// }
 	
-	if err := assetChaincode.Start(); err != nil {
-		log.Panicf("Error starting open-rev chaincode: %v", err)
-	}
+	// if err := assetChaincode.Start(); err != nil {
+	// 	log.Panicf("Error starting open-rev chaincode: %v", err)
+	// }
 
 
 
-		// config := serverConfig{
-		// 	CCID:    os.Getenv("CHAINCODE_ID"),
-		// 	Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
-		// }
+		config := serverConfig{
+			CCID:    os.Getenv("CHAINCODE_ID"),
+			Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
+		}
 
-		// chaincode, err := contractapi.NewChaincode(&SmartContract{})
+		chaincode, err := contractapi.NewChaincode(&SmartContract{})
 
-		// if err != nil {
-		// 	log.Panicf("error create openrev chaincode: %s", err)
-		// }
+		if err != nil {
+			log.Panicf("error create openrev chaincode: %s", err)
+		}
 
-		// server := &shim.ChaincodeServer{
-		// 	CCID:    config.CCID,
-		// 	Address: config.Address,
-		// 	CC:      chaincode,
-		// 	TLSProps: shim.TLSProperties{
-		// 		Disabled: true,
-		// 	},
-		// }
-		// if err := server.Start(); err != nil {
-		// 	log.Panicf("error starting open-rev chaincode: %s", err)
-		// }
+		server := &shim.ChaincodeServer{
+			CCID:    config.CCID,
+			Address: config.Address,
+			CC:      chaincode,
+			TLSProps: shim.TLSProperties{
+				Disabled: true,
+			},
+		}
+		if err := server.Start(); err != nil {
+			log.Panicf("error starting open-rev chaincode: %s", err)
+		}
 	
 
 }

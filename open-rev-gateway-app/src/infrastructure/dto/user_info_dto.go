@@ -17,6 +17,8 @@ type OpenRevUserInfoDTO struct {
 
 type TopAuthorDto struct {
 	User    string  `json:"user"`
+	Email   string  `json:"email"`
+	RoleId  int     `json:"role"`
 	AvgRate float32 `json:"avg_rate"`
 	Guid    string  `json:"guid"`
 }
@@ -25,4 +27,6 @@ type TopReviewerDto struct {
 	User      string  `json:"user"`
 	AvgReview float32 `json:"avg_review"`
 	Guid      string  `json:"guid"`
+	Email     string  `json:"email"`
+	RoleId    int     `json:"role"`
 }

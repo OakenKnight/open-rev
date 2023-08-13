@@ -19,16 +19,55 @@ type reviewHandler struct {
 
 type ReviewHandler interface {
 	GetAllReviews(ctx *gin.Context)
+	GetAllReviewQualities(ctx *gin.Context)
 	GetAllReviewsByScientificWork(ctx *gin.Context)
 	GetAllReviewsByUser(ctx *gin.Context)
 	CreateReview(ctx *gin.Context)
 	CreateReviewQuality(ctx *gin.Context)
 	DeleteReview(ctx *gin.Context)
+	GetAllReviewQualityByReview(ctx *gin.Context)
+	FixReviewId(ctx *gin.Context)
+	FixReviewQualityId(ctx *gin.Context)
 }
 
 func NewReviewHandler(reviewUsecase usecase.ReviewUsecase, contract *client.Contract) ReviewHandler {
 	return &reviewHandler{ReviewUsecase: reviewUsecase, Contract: *contract}
 }
+func (r *reviewHandler) FixReviewId(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	err := r.ReviewUsecase.FixReviewId(ctx, r.Contract, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully fixed rev id"})
+}
+
+func (r *reviewHandler) FixReviewQualityId(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	err := r.ReviewUsecase.FixReviewQualityId(ctx, r.Contract, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully fixed revQ id"})
+}
+
+func (r *reviewHandler) GetAllReviewQualityByReview(ctx *gin.Context) {
+	id := ctx.Param("id")
+	reviews, err := r.ReviewUsecase.GetAllReviewQualityByReview(ctx, r.Contract, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, reviews)
+}
+
 func (r *reviewHandler) DeleteReview(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -41,7 +80,7 @@ func (r *reviewHandler) DeleteReview(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully deleted"})
 }
 
-func (u *reviewHandler) CreateReviewQuality(ctx *gin.Context) {
+func (r *reviewHandler) CreateReviewQuality(ctx *gin.Context) {
 	decoder := json.NewDecoder(ctx.Request.Body)
 	var review dto.ReviewQualityDTO
 	if err := decoder.Decode(&review); err != nil {
@@ -59,7 +98,7 @@ func (u *reviewHandler) CreateReviewQuality(ctx *gin.Context) {
 		return
 	}
 
-	_, err := u.ReviewUsecase.CreateReviewQuality(ctx, u.Contract, &review)
+	_, err := r.ReviewUsecase.CreateReviewQuality(ctx, r.Contract, &review)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -68,8 +107,17 @@ func (u *reviewHandler) CreateReviewQuality(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success_msg": "Successfully inserted review quality mark!"})
 }
 
-func (u *reviewHandler) GetAllReviews(ctx *gin.Context) {
-	reviews, err := u.ReviewUsecase.GetAllReviews(ctx, u.Contract)
+func (r *reviewHandler) GetAllReviews(ctx *gin.Context) {
+	reviews, err := r.ReviewUsecase.GetAllReviews(ctx, r.Contract)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, reviews)
+}
+func (r *reviewHandler) GetAllReviewQualities(ctx *gin.Context) {
+	reviews, err := r.ReviewUsecase.GetAllReviewQualities(ctx, r.Contract)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -78,7 +126,7 @@ func (u *reviewHandler) GetAllReviews(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reviews)
 }
 
-func (u *reviewHandler) CreateReview(ctx *gin.Context) {
+func (r *reviewHandler) CreateReview(ctx *gin.Context) {
 	decoder := json.NewDecoder(ctx.Request.Body)
 	var review dto.ReviewDTO
 	if err := decoder.Decode(&review); err != nil {
@@ -97,7 +145,7 @@ func (u *reviewHandler) CreateReview(ctx *gin.Context) {
 		return
 	}
 
-	_, err := u.ReviewUsecase.CreateReview(ctx, u.Contract, review)
+	_, err := r.ReviewUsecase.CreateReview(ctx, r.Contract, review)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -106,9 +154,9 @@ func (u *reviewHandler) CreateReview(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success_msg": "Successfully inserted review!"})
 }
 
-func (u *reviewHandler) GetAllReviewsByScientificWork(ctx *gin.Context) {
+func (r *reviewHandler) GetAllReviewsByScientificWork(ctx *gin.Context) {
 	id := ctx.Param("id")
-	reviews, err := u.ReviewUsecase.GetAllReviewsByScientificWork(ctx, u.Contract, id)
+	reviews, err := r.ReviewUsecase.GetAllReviewsByScientificWork(ctx, r.Contract, id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -117,9 +165,9 @@ func (u *reviewHandler) GetAllReviewsByScientificWork(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reviews)
 }
 
-func (u *reviewHandler) GetAllReviewsByUser(ctx *gin.Context) {
+func (r *reviewHandler) GetAllReviewsByUser(ctx *gin.Context) {
 	id := ctx.Param("id")
-	reviews, err := u.ReviewUsecase.GetAllReviewsByUser(ctx, u.Contract, id)
+	reviews, err := r.ReviewUsecase.GetAllReviewsByUser(ctx, r.Contract, id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
