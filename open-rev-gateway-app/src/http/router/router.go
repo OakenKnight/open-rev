@@ -8,7 +8,7 @@ import (
 
 func NewRouter(handler interactor.AppHandler, contract *client.Contract) *gin.Engine {
 	router := gin.Default()
-
+	router.GET("/test-cc-version", handler.TestCCVersion)
 	router.POST("/user/register", handler.Register)
 	router.POST("/user/edit", handler.EditUser)
 	router.POST("/user/confirmAccount", handler.ConfirmAccount)

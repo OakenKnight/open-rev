@@ -23,6 +23,7 @@ type appHandler struct {
 	handler.UserHandler
 	handler.ReviewHandler
 	handler.ScientificWorkHandler
+	handler.TestHandler
 }
 
 type AppHandler interface {
@@ -30,6 +31,7 @@ type AppHandler interface {
 	handler.UserHandler
 	handler.ReviewHandler
 	handler.ScientificWorkHandler
+	handler.TestHandler
 }
 
 func NewInteractor(contract client.Contract, minioClient minio.Client) Interactor {
@@ -42,7 +44,7 @@ func (i *interactor) NewAppHandler() AppHandler {
 	appHandler.UserHandler = i.NewUserHandler(i.Contract)
 	appHandler.ScientificWorkHandler = i.NewScientificWorkHandler(i.Contract, i.MinioClient)
 	appHandler.ReviewHandler = i.NewReviewHandler(i.Contract)
-
+	appHandler.TestHandler = i.NewTestHandler(i.Contract)
 	return appHandler
 }
 
@@ -77,4 +79,11 @@ func (i *interactor) NewScientificWorkHandler(contract client.Contract, minioCli
 
 func (i *interactor) NewScientificWorkUsecase(contract client.Contract) usecase.ScientificWorkUsecase {
 	return usecase.NewScientificWorkUsecase(&contract)
+}
+func (i *interactor) NewTestUsecase(contract client.Contract) usecase.TestUsecase {
+	return usecase.NewTestUsecase(&contract)
+}
+
+func (i *interactor) NewTestHandler(contract client.Contract) handler.TestHandler {
+	return handler.NewTestHandler(i.NewTestUsecase(contract), &contract)
 }

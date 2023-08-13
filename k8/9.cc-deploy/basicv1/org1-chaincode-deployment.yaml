@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaincode-basicv1-org1
+  namespace: openrev-staging
+  labels:
+    app: chaincode-basicv1-org1
+spec:
+  selector:
+    matchLabels:
+      app: chaincode-basicv1-org1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: chaincode-basicv1-org1
+    spec:
+      containers:
+        - image: oakenknight/openrev-cc:v1.7
+          imagePullPolicy: Always
+          name: chaincode-basicv1-org1
+          env:
+            - name: CHAINCODE_ID
+              value: "basicv1:4834b9eb7598e6429f4467fde1b8f92516aa18d904c76d531f5244f4c23186db"
+            - name: CHAINCODE_SERVER_ADDRESS
+              value: "0.0.0.0:7052"
+          ports:
+            - containerPort: 7052

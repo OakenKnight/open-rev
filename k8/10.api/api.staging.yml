@@ -32,7 +32,7 @@ spec:
               memory: "400Mi"
               cpu: "300m"
               
-          image: oakenknight/openrev-gateway-api:v2.2
+          image: oakenknight/openrev-gateway-api:v2.5
           imagePullPolicy: Always
           env:
           - name: MODE
@@ -98,10 +98,5 @@ spec:
       port: 80
       targetPort: web
       protocol: TCP
-  # ports:
-  # - port: 8080
-  #   protocol: TCP
-  #   targetPort: 8080
-    
   selector:
     name: api-staging

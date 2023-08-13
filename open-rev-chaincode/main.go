@@ -481,6 +481,13 @@ func (s *SmartContract) VerifyRevUserAsset(ctx contractapi.TransactionContextInt
 
 	return &openRevUserAsset, nil
 }
+
+func (s *SmartContract) TestVersion1(ctx contractapi.TransactionContextInterface) (string, error) {
+	
+	return "test: basciv1", nil
+}
+
+
 func (s *SmartContract) GetAllReviewersOnScientificWork(ctx contractapi.TransactionContextInterface, sciWorkId string) ([]*domain.OpenRevUser, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
