@@ -18,9 +18,6 @@ type serverConfig struct {
 	CCID    string
 	Address string
 }
-const (
-	timeFormat = "2006-01-02"
-)
 
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	usersAssets := []domain.OpenRevUser{
@@ -1100,7 +1097,7 @@ func (s *SmartContract) ReadAllScientificWorkAssetsWithDetails(ctx contractapi.T
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "scientific-work" {
+		if asset.Type == "scientific-work" && !asset.IsDeleted{
 			var sciWorkDetails domain.ScientificWorkForSortingDTO
 			err = json.Unmarshal(queryResponse.Value, &sciWorkDetails)
 			if err != nil {
@@ -1237,7 +1234,7 @@ func (s *SmartContract) ReadAllOpenRevUserAssets(ctx contractapi.TransactionCont
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "user" {
+		if asset.Type == "user" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1265,7 +1262,7 @@ func (s *SmartContract) ReadAllReviewAssets(ctx contractapi.TransactionContextIn
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "review" {
+		if asset.Type == "review" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1293,7 +1290,7 @@ func (s *SmartContract) ReadAllScientificWorkAssets(ctx contractapi.TransactionC
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "scientific-work" {
+		if asset.Type == "scientific-work" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1330,7 +1327,7 @@ func (s *SmartContract) ReadAllScientificWorksByUserAssets(ctx contractapi.Trans
 		if err != nil {
 			return nil, err
 		}
-		if (asset.Type == "scientific-work") && (asset.UserId == userId) {
+		if (asset.Type == "scientific-work") && (asset.UserId == userId) && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1478,7 +1475,7 @@ func (s *SmartContract) ReadAllScientificWorksBySubAreaAssets(ctx contractapi.Tr
 		if err != nil {
 			return nil, err
 		}
-		if (asset.Type == "scientific-work") && (asset.SubAreaId == subareaId) {
+		if (asset.Type == "scientific-work") && (asset.SubAreaId == subareaId) && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1515,7 +1512,7 @@ func (s *SmartContract) ReadAllReviewsByOpenRevUserAssets(ctx contractapi.Transa
 		if err != nil {
 			return nil, err
 		}
-		if (asset.Type == "review") && (asset.UserId == id) {
+		if (asset.Type == "review") && (asset.UserId == id) && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1552,7 +1549,7 @@ func (s *SmartContract) ReadAllReviewsByScientificPaperAssets(ctx contractapi.Tr
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "review" && asset.ScientificWorkId == id {
+		if asset.Type == "review" && asset.ScientificWorkId == id && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1697,7 +1694,7 @@ func (s *SmartContract) ReadAllDashboardItemAssets(ctx contractapi.TransactionCo
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "scientific-work" {
+		if asset.Type == "scientific-work" && !asset.IsDeleted {
 
 			openRevUserAsset, err := s.ReadOpenRevUserAsset(ctx, asset.UserId)
 			if err != nil {
@@ -1738,7 +1735,7 @@ func (s *SmartContract) ReadAllAreaSubareaAssets(ctx contractapi.TransactionCont
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "area" {
+		if asset.Type == "area" && !asset.IsDeleted {
 			subareas, err := s.ReadAllSubAreaByAreaIdAssets(ctx, asset.ID)
 			if err != nil {
 				return nil, err
@@ -1771,7 +1768,7 @@ func (s *SmartContract) ReadAllAreaAssets(ctx contractapi.TransactionContextInte
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "area" {
+		if asset.Type == "area" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1799,7 +1796,7 @@ func (s *SmartContract) ReadAllSubAreaByAreaIdAssets(ctx contractapi.Transaction
 		if err != nil {
 			return nil, err
 		}
-		if (asset.Type == "subarea") && (asset.AreaId == areaId) {
+		if (asset.Type == "subarea") && (asset.AreaId == areaId) && !asset.IsDeleted {
 			dto := domain.SubAreaDTO{ID: asset.ID, SubArea: asset.Name, IsDeleted: asset.IsDeleted}
 			assets = append(assets, dto)
 		}
@@ -1827,7 +1824,7 @@ func (s *SmartContract) ReadAllSubAreaAssets(ctx contractapi.TransactionContextI
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "subarea" {
+		if asset.Type == "subarea" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1856,7 +1853,7 @@ func (s *SmartContract) ReadAllReviewQualityAssets(ctx contractapi.TransactionCo
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "review-quality" {
+		if asset.Type == "review-quality" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1886,7 +1883,7 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "user" {
+		if asset.Type == "user" && !asset.IsDeleted {
 			var openRevUserAsset domain.OpenRevUserInfoDTO
 			err = json.Unmarshal(queryResponse.Value, &openRevUserAsset)
 			if err != nil {
@@ -2002,13 +1999,16 @@ func (s *SmartContract) GetAverageMarkForReview(ctx contractapi.TransactionConte
 		if err != nil {
 			return -1, err
 		}
-		if (asset.Type == "review-quality") && (asset.ReviewId == revId) {
+		if (asset.Type == "review-quality") && (asset.ReviewId == revId) && !asset.IsDeleted {
 			sum += asset.Assessment
 			num++
 		}
 	}
-
-	return float32((sum * 1.0) / (num * 1.0)), nil
+	var retVal float32
+	if num != 0 {
+		retVal = float32((sum * 1.0) / (num * 1.0))
+	}
+	return retVal, nil
 }
 
 func (s *SmartContract) GetAverageQualityMarkForUser(ctx contractapi.TransactionContextInterface, userId string) (float32, error) {
@@ -2031,7 +2031,7 @@ func (s *SmartContract) GetAverageQualityMarkForUser(ctx contractapi.Transaction
 		if err != nil {
 			return -1, err
 		}
-		if (asset.Type == "review-quality") && (asset.UserId == userId) {
+		if (asset.Type == "review-quality") && (asset.UserId == userId) && !asset.IsDeleted {
 			sum += asset.Assessment
 			num++
 		}
