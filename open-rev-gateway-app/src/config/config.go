@@ -29,12 +29,13 @@ type Config struct {
 	MinioSsl        bool
 	MinioBucket     string
 	MinioLocation   string
+	DefaultPath     string
 }
 
 func GetConfig(path string) (*Config, error) {
 	config := Config{}
 	//Uncomment for local development
-	if (os.Getenv("IS_COMPOSE") != "true") {
+	if os.Getenv("IS_COMPOSE") != "true" {
 		err := godotenv.Load(path)
 		if err != nil {
 			return nil, fmt.Errorf("error loading .env file")
@@ -63,7 +64,7 @@ func GetConfig(path string) (*Config, error) {
 	config.MinioBucket = os.Getenv("MINIO_BUCKET")
 	config.MinioLocation = os.Getenv("MINIO_LOCATION")
 	config.MinioSsl = os.Getenv("Minio_SSL") == "true"
-
+	config.DefaultPath = os.Getenv("DEFAULT_PATH")
 	config.IsCompose = os.Getenv("IS_COMPOSE") == "true"
 	return &config, nil
 }

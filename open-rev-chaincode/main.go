@@ -797,7 +797,7 @@ func (s *SmartContract) DeleteSubAreaAsset(ctx contractapi.TransactionContextInt
 		return nil, err
 	}
 	if !exists{
-		return nil, fmt.Errorf("the asset &s does not exist", id)
+		return nil, fmt.Errorf("the asset %s does not exist", id)
 	}
 
 	subAreaAssetJson, err := ctx.GetStub().GetState(id)
@@ -2090,7 +2090,7 @@ func (s *SmartContract) DeleteScientificWorkAsset(ctx contractapi.TransactionCon
 		return nil, err
 	}
 	if !exists{
-		return nil, fmt.Errorf("the asset &s does not exist", id)
+		return nil, fmt.Errorf("the asset %s does not exist", id)
 	}
 
 	scientificWorkAssetJson, err := ctx.GetStub().GetState(id)
@@ -2286,14 +2286,14 @@ func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInte
 func main() {
 
 
-	// assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
-	// if err != nil {
-	// 	log.Panicf("Error creating open-rev chaincode: %v", err)
-	// }
+	assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
+	if err != nil {
+		log.Panicf("Error creating open-rev chaincode: %v", err)
+	}
 	
-	// if err := assetChaincode.Start(); err != nil {
-	// 	log.Panicf("Error starting open-rev chaincode: %v", err)
-	// }
+	if err := assetChaincode.Start(); err != nil {
+		log.Panicf("Error starting open-rev chaincode: %v", err)
+	}
 
 
 
