@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
+
 	"github.com/hyperledger/fabric-chaincode-go/shim"
-	"os"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	domain "open-rev.com/domain"
 )
@@ -23,18 +24,17 @@ type serverConfig struct {
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	usersAssets := []domain.OpenRevUser{
 		{
-			ID: "helenab90453b68d0f40280391anisic", 
-			Name: "Helena", 
-			Surname: "Anisic", 
-			Email: "hanisic@uns.ac.rs", 
-			RoleId: 4, 
-			Verified: true, 
-			Code: "", 
-			Type: "user",
-			IsDeleted: false		},
-		{ID: "14c3441fdcdf0cf67a7db7aaa9c81ffe", Name: "Aleksandar", Surname: "Ignjatijevic", Email: "alexignjat1998@gmail.com", RoleId: 3, Verified: true, Code: "", Type: "user", IsDeleted: false	},
-		{ID: "123", Name: "PERA", Surname: "PERIC", Email: "blabla@gmail.com", RoleId: 3, Verified: true, Code: "", Type: "user", IsDeleted: false	},
-		
+			ID:        "helenab90453b68d0f40280391anisic",
+			Name:      "Helena",
+			Surname:   "Anisic",
+			Email:     "hanisic@uns.ac.rs",
+			RoleId:    4,
+			Verified:  true,
+			Code:      "",
+			Type:      "user",
+			IsDeleted: false},
+		{ID: "14c3441fdcdf0cf67a7db7aaa9c81ffe", Name: "Aleksandar", Surname: "Ignjatijevic", Email: "alexignjat1998@gmail.com", RoleId: 3, Verified: true, Code: "", Type: "user", IsDeleted: false},
+		{ID: "123", Name: "PERA", Surname: "PERIC", Email: "blabla@gmail.com", RoleId: 3, Verified: true, Code: "", Type: "user", IsDeleted: false},
 	}
 
 	roleAssets := []domain.Role{
@@ -258,7 +258,7 @@ func (s *SmartContract) CreateRevUserAsset(ctx contractapi.TransactionContextInt
 	if len(users) != 0 {
 		return nil, fmt.Errorf("User with email %s already exists", email)
 	}
-	dto := domain.OpenRevUser{ID: id, Name: name, Surname: surname, Email: email, RoleId: 4, Verified: false, Code: code, Type: "user", IsDeleted : false}
+	dto := domain.OpenRevUser{ID: id, Name: name, Surname: surname, Email: email, RoleId: 4, Verified: false, Code: code, Type: "user", IsDeleted: false}
 
 	userJSON, err := json.Marshal(dto)
 	if err != nil {
@@ -311,7 +311,7 @@ func (s *SmartContract) CreateReviewAsset(ctx contractapi.TransactionContextInte
 	}
 	rec, err := strconv.ParseBool(recommend)
 
-	dto := domain.Review{ID: id, ScientificWorkId: sciId, Assessment: a, Recommend: rec, Review: review, 
+	dto := domain.Review{ID: id, ScientificWorkId: sciId, Assessment: a, Recommend: rec, Review: review,
 		UserId: userId, Type: "review", IsDeleted: false}
 
 	reviewJSON, err := json.Marshal(dto)
@@ -322,7 +322,7 @@ func (s *SmartContract) CreateReviewAsset(ctx contractapi.TransactionContextInte
 
 	err = ctx.GetStub().PutState(dto.ID, reviewJSON)
 	if err != nil {
-		return nil,	fmt.Errorf("failed to put review to world state. %v", err)
+		return nil, fmt.Errorf("failed to put review to world state. %v", err)
 
 	}
 	//
@@ -341,9 +341,8 @@ func (s *SmartContract) CreateReviewAsset(ctx contractapi.TransactionContextInte
 	return &dto, nil
 }
 
-
 func (s *SmartContract) CreateAreaAsset(ctx contractapi.TransactionContextInterface, id, name string) (*domain.Area, error) {
-	
+
 	dto := domain.Area{ID: id, Name: name, Hidden: false, Type: "area", IsDeleted: false}
 
 	areaJSON, err := json.Marshal(dto)
@@ -357,19 +356,18 @@ func (s *SmartContract) CreateAreaAsset(ctx contractapi.TransactionContextInterf
 		return nil, fmt.Errorf("failed to put area to world state. %v", err)
 
 	}
-	
+
 	return &dto, nil
 }
 
 func (s *SmartContract) CreateSubAreaAsset(ctx contractapi.TransactionContextInterface, id, areaId, name string) (*domain.SubArea, error) {
-	
-	dto := domain.SubArea{ID: id, Name: name, AreaId: areaId ,Hidden: false, Type: "subarea", IsDeleted: false}
 
-	_, err := s.AreaAssetExists(ctx,areaId)
-	if err!=nil {
-		return nil, fmt.Errorf("area asset does not exist");
+	dto := domain.SubArea{ID: id, Name: name, AreaId: areaId, Hidden: false, Type: "subarea", IsDeleted: false}
+
+	_, err := s.AreaAssetExists(ctx, areaId)
+	if err != nil {
+		return nil, fmt.Errorf("area asset does not exist")
 	}
-
 
 	subareaJson, err := json.Marshal(dto)
 	if err != nil {
@@ -382,14 +380,9 @@ func (s *SmartContract) CreateSubAreaAsset(ctx contractapi.TransactionContextInt
 		return nil, fmt.Errorf("failed to put subarea to world state. %v", err)
 
 	}
-	
+
 	return &dto, nil
 }
-
-
-
-
-
 
 func (s *SmartContract) CreateReviewQualityAsset(ctx contractapi.TransactionContextInterface, id, reviewId, userId, assessment string) (*domain.ReviewQuality, error) {
 	rev, err := s.ReadReviewAsset(ctx, reviewId)
@@ -414,7 +407,7 @@ func (s *SmartContract) CreateReviewQualityAsset(ctx contractapi.TransactionCont
 
 	}
 
-	dto := domain.ReviewQuality{ID: id, ReviewId: reviewId, Assessment: a, UserId: userId, Type: "review-quality", IsDeleted : false}
+	dto := domain.ReviewQuality{ID: id, ReviewId: reviewId, Assessment: a, UserId: userId, Type: "review-quality", IsDeleted: false}
 
 	reviewJSON, err := json.Marshal(dto)
 	if err != nil {
@@ -428,9 +421,6 @@ func (s *SmartContract) CreateReviewQualityAsset(ctx contractapi.TransactionCont
 
 	}
 
-
-
-	
 	return &dto, nil
 }
 
@@ -481,10 +471,9 @@ func (s *SmartContract) VerifyRevUserAsset(ctx contractapi.TransactionContextInt
 }
 
 func (s *SmartContract) TestVersion1(ctx contractapi.TransactionContextInterface) (string, error) {
-	
+
 	return "test: basciv1", nil
 }
-
 
 func (s *SmartContract) GetAllReviewersOnScientificWork(ctx contractapi.TransactionContextInterface, sciWorkId string) ([]*domain.OpenRevUser, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -537,7 +526,7 @@ func (s *SmartContract) GetAllReviewersOnReview(ctx contractapi.TransactionConte
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "review-quality" && reviewId ==  strings.TrimSpace(asset.ReviewId) {
+		if asset.Type == "review-quality" && reviewId == strings.TrimSpace(asset.ReviewId) {
 
 			userAsset, err := s.ReadOpenRevUserAsset(ctx, asset.UserId)
 			if err != nil {
@@ -640,8 +629,8 @@ func (s *SmartContract) CreateScientificWorkAsset(ctx contractapi.TransactionCon
 		return nil, fmt.Errorf("the open-rev-user asset %s does not exist", id)
 	}
 
-	newWork := domain.ScientificWork{ID: id, SubAreaId: subareaId, Title: title, Abstract: abstract, Keywords: keywords, 
-		PdfFile: pdf, UserId: userId, PublishDate: date, Type: "scientific-work", IsDeleted : false}
+	newWork := domain.ScientificWork{ID: id, SubAreaId: subareaId, Title: title, Abstract: abstract, Keywords: keywords,
+		PdfFile: pdf, UserId: userId, PublishDate: date, Type: "scientific-work", IsDeleted: false}
 
 	newWorkJSON, err := json.Marshal(newWork)
 	if err != nil {
@@ -719,7 +708,7 @@ func (s *SmartContract) EditScientificWorkAsset(ctx contractapi.TransactionConte
 	if err != nil {
 		return nil, err
 	}
-	sciWork := domain.ScientificWork{ID: id, Title: title, PublishDate: date, Abstract: abstract, Keywords: keywords, 
+	sciWork := domain.ScientificWork{ID: id, Title: title, PublishDate: date, Abstract: abstract, Keywords: keywords,
 		PdfFile: pdf, UserId: userId, SubAreaId: subareaId, Type: "scientific-work", IsDeleted: false}
 
 	sciWorkJSON, err := json.Marshal(sciWork)
@@ -747,12 +736,12 @@ func (s *SmartContract) EditScientificWorkAsset(ctx contractapi.TransactionConte
 	return &sciWork, nil
 }
 
-func (s *SmartContract) DeleteAreaAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.Area, error){
+func (s *SmartContract) DeleteAreaAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.Area, error) {
 	exists, err := s.AreaAssetExists(ctx, id)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	if !exists{
+	if !exists {
 		return nil, fmt.Errorf("the asset %s does not exist", id)
 	}
 
@@ -771,7 +760,7 @@ func (s *SmartContract) DeleteAreaAsset(ctx contractapi.TransactionContextInterf
 		return nil, err
 	}
 
-	dto := domain.Area{ID: area.ID, Name: area.Name, Hidden: area.Hidden, Type: area.Type, IsDeleted : true}
+	dto := domain.Area{ID: area.ID, Name: area.Name, Hidden: area.Hidden, Type: area.Type, IsDeleted: true}
 
 	areaJson, err := json.Marshal(dto)
 	if err != nil {
@@ -787,16 +776,12 @@ func (s *SmartContract) DeleteAreaAsset(ctx contractapi.TransactionContextInterf
 	return &area, nil
 }
 
-
-
-
-
-func (s *SmartContract) DeleteSubAreaAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.SubArea, error){
+func (s *SmartContract) DeleteSubAreaAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.SubArea, error) {
 	exists, err := s.SubAreaAssetExists(ctx, id)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	if !exists{
+	if !exists {
 		return nil, fmt.Errorf("the asset %s does not exist", id)
 	}
 
@@ -815,7 +800,7 @@ func (s *SmartContract) DeleteSubAreaAsset(ctx contractapi.TransactionContextInt
 		return nil, err
 	}
 
-	dto := domain.SubArea{ID: subarea.ID, Name: subarea.Name, Hidden: subarea.Hidden, Type: subarea.Type, IsDeleted : true, AreaId: subarea.AreaId}
+	dto := domain.SubArea{ID: subarea.ID, Name: subarea.Name, Hidden: subarea.Hidden, Type: subarea.Type, IsDeleted: true, AreaId: subarea.AreaId}
 
 	subareaJson, err := json.Marshal(dto)
 	if err != nil {
@@ -831,15 +816,12 @@ func (s *SmartContract) DeleteSubAreaAsset(ctx contractapi.TransactionContextInt
 	return &subarea, nil
 }
 
-
-
-
-func (s *SmartContract) DeleteOpenRevUserAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.OpenRevUser, error){
+func (s *SmartContract) DeleteOpenRevUserAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.OpenRevUser, error) {
 	exists, err := s.OpenRevUserAssetExists(ctx, id)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	if !exists{
+	if !exists {
 		return nil, fmt.Errorf("the asset %s does not exist", id)
 	}
 
@@ -858,7 +840,7 @@ func (s *SmartContract) DeleteOpenRevUserAsset(ctx contractapi.TransactionContex
 		return nil, err
 	}
 
-	dto := domain.OpenRevUser{	ID:user.ID, Name: user.Name, Surname: user.Name, Email: user.Email, RoleId: user.RoleId, 
+	dto := domain.OpenRevUser{ID: user.ID, Name: user.Name, Surname: user.Name, Email: user.Email, RoleId: user.RoleId,
 		Verified: user.Verified, Code: user.Code, Type: user.Type, IsDeleted: true}
 
 	userJson, err := json.Marshal(dto)
@@ -874,8 +856,6 @@ func (s *SmartContract) DeleteOpenRevUserAsset(ctx contractapi.TransactionContex
 
 	return &user, nil
 }
-
-
 
 func (s *SmartContract) EditOpenRevUserAsset(ctx contractapi.TransactionContextInterface, id, name, surname string) (*domain.OpenRevUser, error) {
 	exists, err := s.OpenRevUserAssetExists(ctx, id)
@@ -901,7 +881,7 @@ func (s *SmartContract) EditOpenRevUserAsset(ctx contractapi.TransactionContextI
 		return nil, err
 	}
 
-	dto := domain.OpenRevUser{ID: id, Name: name, Surname: surname, Email: openRevUserAsset.Email, RoleId: openRevUserAsset.RoleId, 
+	dto := domain.OpenRevUser{ID: id, Name: name, Surname: surname, Email: openRevUserAsset.Email, RoleId: openRevUserAsset.RoleId,
 		Verified: openRevUserAsset.Verified, Type: "user", IsDeleted: openRevUserAsset.IsDeleted}
 
 	userJSON, err := json.Marshal(dto)
@@ -916,7 +896,6 @@ func (s *SmartContract) EditOpenRevUserAsset(ctx contractapi.TransactionContextI
 
 	return &openRevUserAsset, nil
 }
-
 
 func (s *SmartContract) OpenRevUserAssetExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	openRevUserAsset, err := ctx.GetStub().GetState(id)
@@ -1079,7 +1058,7 @@ func (s *SmartContract) ReadAreaAsset(ctx contractapi.TransactionContextInterfac
 	return &areaAsset, nil
 }
 
-func (s *SmartContract) ReadAllScientificWorkAssetsWithDetails(ctx contractapi.TransactionContextInterface) ([]*domain.ScientificWorkForSortingDTO, error){
+func (s *SmartContract) ReadAllScientificWorkAssetsWithDetails(ctx contractapi.TransactionContextInterface) ([]*domain.ScientificWorkForSortingDTO, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
@@ -1098,7 +1077,7 @@ func (s *SmartContract) ReadAllScientificWorkAssetsWithDetails(ctx contractapi.T
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "scientific-work" && !asset.IsDeleted{
+		if asset.Type == "scientific-work" && !asset.IsDeleted {
 			var sciWorkDetails domain.ScientificWorkForSortingDTO
 			err = json.Unmarshal(queryResponse.Value, &sciWorkDetails)
 			if err != nil {
@@ -1152,8 +1131,8 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 		}
 		totalMark += avgMarkForSciWork
 	}
-	
-	if totalMark == 0.0 || counter ==0 {
+
+	if totalMark == 0.0 || counter == 0 {
 		openRevUserAsset.AvgMark = 0.0
 	} else {
 		openRevUserAsset.AvgMark = totalMark / float32(counter)
@@ -1172,7 +1151,7 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 		counter++
 	}
 
-	if totalRevMark == 0.0 || counter ==0 {
+	if totalRevMark == 0.0 || counter == 0 {
 		openRevUserAsset.AvgReview = 0.0
 	} else {
 		openRevUserAsset.AvgReview = float32(totalRevMark) / float32(counter)
@@ -1196,7 +1175,7 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 		}
 	}
 
-	if totalRevQualityMark == 0.0 || counter== 0 {
+	if totalRevQualityMark == 0.0 || counter == 0 {
 		openRevUserAsset.AvgRevQuality = 0.0
 	} else {
 		openRevUserAsset.AvgRevQuality = totalRevQualityMark / float32(counter)
@@ -1204,11 +1183,11 @@ func (s *SmartContract) ReadOpenRevUserInfoAsset(ctx contractapi.TransactionCont
 
 	userAvgMark, err := s.GetAverageQualityMarkForUser(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting average quality for user %s", id)
+		return nil, fmt.Errorf("error getting average quality for user %s", id)
 	}
 
 	openRevUserAsset.AvgMyRevsQuality = userAvgMark
-	openRevUserAsset.ReviewsCount =  len(revsByUser)
+	openRevUserAsset.ReviewsCount = len(revsByUser)
 	openRevUserAsset.WorksCount = len(sciWorksByUser)
 	openRevUserAsset.IsAdmin = openRevUserAsset.RoleId == 3
 	openRevUserAsset.ID = id
@@ -1235,7 +1214,7 @@ func (s *SmartContract) ReadAllOpenRevUserAssets(ctx contractapi.TransactionCont
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "user" && !asset.IsDeleted {
+		if asset.Type == "user" {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1264,7 +1243,7 @@ func (s *SmartContract) ReadAllReviewAssets(ctx contractapi.TransactionContextIn
 			return nil, err
 		}
 		asset.ID = strings.TrimSpace(asset.ID)
-		if asset.Type == "review" && !asset.IsDeleted {
+		if asset.Type == "review" {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1292,7 +1271,7 @@ func (s *SmartContract) ReadAllScientificWorkAssets(ctx contractapi.TransactionC
 		if err != nil {
 			return nil, err
 		}
-		if asset.Type == "scientific-work" && !asset.IsDeleted {
+		if asset.Type == "scientific-work" {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1389,7 +1368,6 @@ func (s *SmartContract) ReadScientificWorkDetails(ctx contractapi.TransactionCon
 	if err != nil {
 		return nil, err
 	}
-	//
 	reviews, err := s.ReadAllReviewsByScientificPaperAssets(ctx, sciWork.ID)
 	if err != nil {
 		return nil, err
@@ -1512,7 +1490,7 @@ func (s *SmartContract) ReadAllScientificWorksBySubAreaAssets(ctx contractapi.Tr
 		if err != nil {
 			return nil, err
 		}
-		if (asset.Type == "scientific-work") && (asset.SubAreaId == subareaId) && !asset.IsDeleted {
+		if (asset.Type == "scientific-work") && (asset.SubAreaId == subareaId) {
 			assets = append(assets, &asset)
 		}
 	}
@@ -1572,7 +1550,6 @@ func (s *SmartContract) ReadAllReviewsByScientificPaperAssets(ctx contractapi.Tr
 	}
 	defer resultsIterator.Close()
 
-	// var assets []*domain.Review
 	assets := make([]*domain.Review, 0)
 
 	for resultsIterator.HasNext() {
@@ -1704,10 +1681,10 @@ func (s *SmartContract) GetScientificWorkAvgMark(ctx contractapi.TransactionCont
 			num++
 		}
 	}
-	if num == 0{
+	if num == 0 {
 		return float32(0), nil
 	}
-	
+
 	return float32((sum * 1.0) / (num * 1.0)), nil
 }
 
@@ -1737,8 +1714,8 @@ func (s *SmartContract) ReadAllDashboardItemAssets(ctx contractapi.TransactionCo
 			if err != nil {
 				return nil, err
 			}
-			
-			dashboardItem := domain.DashboardItem{ID: asset.ID, Title: asset.Title, Abstract: asset.Abstract, Keywords: asset.Keywords, 
+
+			dashboardItem := domain.DashboardItem{ID: asset.ID, Title: asset.Title, Abstract: asset.Abstract, Keywords: asset.Keywords,
 				PdfFile: asset.PdfFile, User: openRevUserAsset.Name + " " + openRevUserAsset.Surname, PublishDate: asset.PublishDate}
 
 			dashboardItem.AverageRate, err = s.GetScientificWorkAvgMark(ctx, asset.ID)
@@ -1869,7 +1846,6 @@ func (s *SmartContract) ReadAllSubAreaAssets(ctx contractapi.TransactionContextI
 	return assets, nil
 }
 
-
 func (s *SmartContract) ReadAllReviewQualityAssets(ctx contractapi.TransactionContextInterface) ([]*domain.ReviewQuality, error) {
 
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
@@ -1892,15 +1868,13 @@ func (s *SmartContract) ReadAllReviewQualityAssets(ctx contractapi.TransactionCo
 			return nil, err
 		}
 		asset.ID = strings.TrimSpace(asset.ID)
-		if asset.Type == "review-quality" && !asset.IsDeleted{
+		if asset.Type == "review-quality" && !asset.IsDeleted {
 			assets = append(assets, &asset)
 		}
 	}
 
 	return assets, nil
 }
-
-
 
 func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionContextInterface) ([]*domain.OpenRevUserInfoDTO, error) {
 
@@ -1938,7 +1912,7 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 			var totalMark float32
 			totalMark = 0.0
 			counter := 0
-		
+
 			for _, sciWork := range sciWorksByUser {
 				avgMarkForSciWork, err := s.GetScientificWorkAvgMark(ctx, sciWork.ID)
 				if err != nil {
@@ -1954,28 +1928,28 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 			} else {
 				openRevUserAsset.AvgMark = totalMark / float32(counter)
 			}
-		
+
 			revsByUser, err := s.ReadAllReviewsByOpenRevUserAssets(ctx, asset.ID)
 			if err != nil {
 				return nil, fmt.Errorf("Error getting reviews for user %s", asset.ID)
 			}
-		
+
 			totalRevMark := 0
 			counter = 0
-		
+
 			for _, rev := range revsByUser {
 				totalRevMark += rev.Assessment
 				counter++
 			}
-			if totalRevMark == 0.0 || counter ==0{
+			if totalRevMark == 0.0 || counter == 0 {
 				openRevUserAsset.AvgReview = 0.0
 			} else {
 				openRevUserAsset.AvgReview = float32(totalRevMark) / float32(counter)
 			}
-		
+
 			var totalRevQualityMark float32
 			totalRevQualityMark = 0.0
-		
+
 			counter = 0
 			allRevsQ, err := s.ReadAllReviewQualityAssets(ctx)
 			if err != nil {
@@ -1989,26 +1963,24 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 					}
 				}
 			}
-		
-			if totalRevQualityMark == 0.0 || counter == 0{
+
+			if totalRevQualityMark == 0.0 || counter == 0 {
 				openRevUserAsset.AvgRevQuality = 0.0
 			} else {
 				openRevUserAsset.AvgRevQuality = totalRevQualityMark / float32(counter)
 			}
-		
+
 			userAvgMark, err := s.GetAverageQualityMarkForUser(ctx, asset.ID)
 			if err != nil {
 				return nil, fmt.Errorf("Error getting average quality for user %s", asset.ID)
 			}
-		
+
 			openRevUserAsset.AvgMyRevsQuality = userAvgMark
 			openRevUserAsset.ReviewsCount = len(revsByUser)
 			openRevUserAsset.WorksCount = len(sciWorksByUser)
 			openRevUserAsset.IsAdmin = openRevUserAsset.RoleId == 3
 
-
 			assets = append(assets, &openRevUserAsset)
-
 
 		}
 
@@ -2016,9 +1988,6 @@ func (s *SmartContract) ReadAllUsersWithDetails(ctx contractapi.TransactionConte
 
 	return assets, nil
 }
-
-
-
 
 func (s *SmartContract) GetAverageMarkForReview(ctx contractapi.TransactionContextInterface, revId string) (float32, error) {
 
@@ -2084,12 +2053,12 @@ func (s *SmartContract) GetAverageQualityMarkForUser(ctx contractapi.Transaction
 	return retVal, nil
 }
 
-func (s *SmartContract) DeleteScientificWorkAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.ScientificWork, error){
+func (s *SmartContract) DeleteScientificWorkAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.ScientificWork, error) {
 	exists, err := s.ScientificWorkAssetExists(ctx, id)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	if !exists{
+	if !exists {
 		return nil, fmt.Errorf("the asset %s does not exist", id)
 	}
 
@@ -2108,8 +2077,8 @@ func (s *SmartContract) DeleteScientificWorkAsset(ctx contractapi.TransactionCon
 		return nil, err
 	}
 
-	dto := domain.ScientificWork{ID: sci.ID, SubAreaId: sci.SubAreaId, Title: sci.Title, PublishDate: sci.PublishDate, Abstract: sci.Abstract, 
-		Keywords: sci.Keywords, PdfFile: sci.PdfFile, UserId: sci.UserId, Type: sci.Type, IsDeleted : true}
+	dto := domain.ScientificWork{ID: sci.ID, SubAreaId: sci.SubAreaId, Title: sci.Title, PublishDate: sci.PublishDate, Abstract: sci.Abstract,
+		Keywords: sci.Keywords, PdfFile: sci.PdfFile, UserId: sci.UserId, Type: sci.Type, IsDeleted: true}
 
 	areaJson, err := json.Marshal(dto)
 	if err != nil {
@@ -2145,7 +2114,7 @@ func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 }
 
 func (s *SmartContract) DeleteOffReview(ctx contractapi.TransactionContextInterface, id string) error {
-	reviewAssetJson, err := ctx.GetStub().GetState(id+"\t")
+	reviewAssetJson, err := ctx.GetStub().GetState(id + "\t")
 	if err != nil {
 		return fmt.Errorf("failed to read review from world state: %v", err)
 	}
@@ -2153,23 +2122,22 @@ func (s *SmartContract) DeleteOffReview(ctx contractapi.TransactionContextInterf
 	if reviewAssetJson == nil {
 		return fmt.Errorf("the review asset %s does not exist", id)
 	}
-	
+
 	var rev domain.Review
 	err = json.Unmarshal(reviewAssetJson, &rev)
 	if err != nil {
 		return err
 	}
 
-	dto := domain.Review{ID: id, Review: rev.Review, Assessment: rev.Assessment, Recommend: rev.Recommend, UserId: rev.UserId,  
-		ScientificWorkId: rev.ScientificWorkId, Type: rev.Type, IsDeleted : false}
+	dto := domain.Review{ID: id, Review: rev.Review, Assessment: rev.Assessment, Recommend: rev.Recommend, UserId: rev.UserId,
+		ScientificWorkId: rev.ScientificWorkId, Type: rev.Type, IsDeleted: false}
 
-	
 	reviewJson, err := json.Marshal(dto)
 	if err != nil {
 		return err
 	}
 
-	err1 := s.DeleteAsset(ctx,id+"\t")
+	err1 := s.DeleteAsset(ctx, id+"\t")
 	if err1 != nil {
 		return err
 	}
@@ -2184,7 +2152,7 @@ func (s *SmartContract) DeleteOffReview(ctx contractapi.TransactionContextInterf
 
 func (s *SmartContract) DeleteOffReviewQuality(ctx contractapi.TransactionContextInterface, id string) error {
 
-	reviewAssetJson, err := ctx.GetStub().GetState(id+"\t")
+	reviewAssetJson, err := ctx.GetStub().GetState(id + "\t")
 	if err != nil {
 		return fmt.Errorf("failed to read review quality from world state: %v", err)
 	}
@@ -2192,21 +2160,21 @@ func (s *SmartContract) DeleteOffReviewQuality(ctx contractapi.TransactionContex
 	if reviewAssetJson == nil {
 		return fmt.Errorf("the review quality asset %s does not exist", id)
 	}
-	
+
 	var rev domain.ReviewQuality
 	err = json.Unmarshal(reviewAssetJson, &rev)
 	if err != nil {
 		return err
 	}
 
-	dto := domain.ReviewQuality{ID: id, Assessment: rev.Assessment, UserId: rev.UserId,  
-		ReviewId: rev.ReviewId, Type: rev.Type, IsDeleted : false}
+	dto := domain.ReviewQuality{ID: id, Assessment: rev.Assessment, UserId: rev.UserId,
+		ReviewId: rev.ReviewId, Type: rev.Type, IsDeleted: false}
 
 	reviewJson, err := json.Marshal(dto)
 	if err != nil {
 		return err
 	}
-	err1 := s.DeleteAsset(ctx,id+"\t")
+	err1 := s.DeleteAsset(ctx, id+"\t")
 	if err1 != nil {
 		return err
 	}
@@ -2218,7 +2186,7 @@ func (s *SmartContract) DeleteOffReviewQuality(ctx contractapi.TransactionContex
 
 	return nil
 }
-func (s *SmartContract) DeleteReviewQualityAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.ReviewQuality, error){
+func (s *SmartContract) DeleteReviewQualityAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.ReviewQuality, error) {
 	reviewQualityAssetJson, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read review from world state: %v", err)
@@ -2227,16 +2195,15 @@ func (s *SmartContract) DeleteReviewQualityAsset(ctx contractapi.TransactionCont
 	if reviewQualityAssetJson == nil {
 		return nil, fmt.Errorf("the review quality asset %s does not exist", id)
 	}
-	
+
 	var rev domain.ReviewQuality
 	err = json.Unmarshal(reviewQualityAssetJson, &rev)
 	if err != nil {
 		return nil, err
 	}
 
-
-	dto := domain.ReviewQuality{ID: id, Assessment: rev.Assessment, UserId: rev.UserId,  
-		ReviewId: rev.ReviewId, Type: rev.Type, IsDeleted : true}
+	dto := domain.ReviewQuality{ID: id, Assessment: rev.Assessment, UserId: rev.UserId,
+		ReviewId: rev.ReviewId, Type: rev.Type, IsDeleted: true}
 
 	reviewJson, err := json.Marshal(dto)
 	if err != nil {
@@ -2250,7 +2217,7 @@ func (s *SmartContract) DeleteReviewQualityAsset(ctx contractapi.TransactionCont
 
 	return &rev, nil
 }
-func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.Review, error){
+func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInterface, id string) (*domain.Review, error) {
 	reviewAssetJson, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read review from world state: %v", err)
@@ -2259,16 +2226,15 @@ func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInte
 	if reviewAssetJson == nil {
 		return nil, fmt.Errorf("the review asset %s does not exist", id)
 	}
-	
+
 	var rev domain.Review
 	err = json.Unmarshal(reviewAssetJson, &rev)
 	if err != nil {
 		return nil, err
 	}
 
-
-	dto := domain.Review{ID: id, Review: rev.Review, Assessment: rev.Assessment, Recommend: rev.Recommend, UserId: rev.UserId,  
-		ScientificWorkId: rev.ScientificWorkId, Type: rev.Type, IsDeleted : true}
+	dto := domain.Review{ID: id, Review: rev.Review, Assessment: rev.Assessment, Recommend: rev.Recommend, UserId: rev.UserId,
+		ScientificWorkId: rev.ScientificWorkId, Type: rev.Type, IsDeleted: true}
 
 	reviewJson, err := json.Marshal(dto)
 	if err != nil {
@@ -2285,40 +2251,36 @@ func (s *SmartContract) DeleteReviewAsset(ctx contractapi.TransactionContextInte
 
 func main() {
 
-
 	assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
 	if err != nil {
 		log.Panicf("Error creating open-rev chaincode: %v", err)
 	}
-	
+
 	if err := assetChaincode.Start(); err != nil {
 		log.Panicf("Error starting open-rev chaincode: %v", err)
 	}
 
+	config := serverConfig{
+		CCID:    os.Getenv("CHAINCODE_ID"),
+		Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
+	}
 
+	chaincode, err := contractapi.NewChaincode(&SmartContract{})
 
-		config := serverConfig{
-			CCID:    os.Getenv("CHAINCODE_ID"),
-			Address: os.Getenv("CHAINCODE_SERVER_ADDRESS"),
-		}
+	if err != nil {
+		log.Panicf("error create openrev chaincode: %s", err)
+	}
 
-		chaincode, err := contractapi.NewChaincode(&SmartContract{})
-
-		if err != nil {
-			log.Panicf("error create openrev chaincode: %s", err)
-		}
-
-		server := &shim.ChaincodeServer{
-			CCID:    config.CCID,
-			Address: config.Address,
-			CC:      chaincode,
-			TLSProps: shim.TLSProperties{
-				Disabled: true,
-			},
-		}
-		if err := server.Start(); err != nil {
-			log.Panicf("error starting open-rev chaincode: %s", err)
-		}
-	
+	server := &shim.ChaincodeServer{
+		CCID:    config.CCID,
+		Address: config.Address,
+		CC:      chaincode,
+		TLSProps: shim.TLSProperties{
+			Disabled: true,
+		},
+	}
+	if err := server.Start(); err != nil {
+		log.Panicf("error starting open-rev chaincode: %s", err)
+	}
 
 }
