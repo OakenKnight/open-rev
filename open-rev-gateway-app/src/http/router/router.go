@@ -26,8 +26,6 @@ func NewRouter(handler interactor.AppHandler, contract *client.Contract) *gin.En
 
 	router.POST(defaultPath+"/subarea", handler.AddSubArea)
 	router.POST(defaultPath+"/area", handler.AddArea)
-	router.POST(defaultPath+"/review/fix/:id", handler.FixReviewId)
-	router.POST(defaultPath+"/reviewQuality/fix/:id", handler.FixReviewQualityId)
 
 	router.GET(defaultPath+"/user", handler.GetAllUsers)
 	router.GET(defaultPath+"/user/:id", handler.GetUserById)

@@ -7,8 +7,15 @@ type ReviewDTO struct {
 	Assessment       int
 	Recommend        bool
 	Review           string
+	LastUpdateTime   string `json:"last_update_time"`
 }
-
+type NewReviewDTO struct {
+	ScientificWorkId string `json:"scientificWorkId"`
+	UserId           string `json:"userId"`
+	Assessment       int    `json:"assessment"`
+	Recommend        bool   `json:"recommend"`
+	Review           string `json:"review"`
+}
 type ReviewForDetailsDTO struct {
 	ReviewId         string   `json:"review_id"`
 	Review           string   `json:"review"`

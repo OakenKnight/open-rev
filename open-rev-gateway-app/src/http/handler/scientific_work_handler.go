@@ -12,6 +12,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -73,6 +74,7 @@ func NewScientificWorkHandler(scientificWorkUsecase usecase.ScientificWorkUsecas
 	return &scientificWorkHandler{ScientificWorkUsecase: scientificWorkUsecase, Contract: *contract, MinioClient: *minioClient}
 }
 
+// todo: handle deleted lastupdatetim
 func (s *scientificWorkHandler) DeleteScientificWork(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -245,7 +247,7 @@ func (s *scientificWorkHandler) CreateScientificWork(ctx *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-
+	sciWork.LastUpdateTime = time.Now()
 	newWork, err := s.ScientificWorkUsecase.CreateScientificWork(ctx, s.Contract, &sciWork)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})

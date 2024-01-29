@@ -10,6 +10,7 @@ import (
 	"open-rev.com/helper"
 	"open-rev.com/infrastructure/dto"
 	"strconv"
+	"time"
 )
 
 type reviewUsecase struct {
@@ -32,24 +33,6 @@ func (r *reviewUsecase) GetAllReviewQualities(ctx context.Context, contract clie
 	}
 
 	return reviewsQualities, nil
-}
-
-func (r *reviewUsecase) FixReviewId(context context.Context, contract client.Contract, id string) error {
-	log.Println("Submit Transaction: DeleteOffReview, function returns error if not successful")
-	_, err := contract.SubmitTransaction("DeleteOffReview", id)
-	if err != nil {
-		return helper.LedgerErrorHandler(&contract, err)
-	}
-	return nil
-}
-
-func (r *reviewUsecase) FixReviewQualityId(context context.Context, contract client.Contract, id string) error {
-	log.Println("Submit Transaction: DeleteOffReviewQuality, function returns error if not successful")
-	_, err := contract.SubmitTransaction("DeleteOffReviewQuality", id)
-	if err != nil {
-		return helper.LedgerErrorHandler(&contract, err)
-	}
-	return nil
 }
 
 func (r *reviewUsecase) GetAllReviewQualityByReview(ctx context.Context, contract client.Contract, reviewId string) ([]*domain.ReviewQuality, error) {
@@ -85,9 +68,11 @@ func (r *reviewUsecase) DeleteReview(context context.Context, contract client.Co
 func (r *reviewUsecase) CreateReviewQuality(ctx context.Context, contract client.Contract, revQ *dto.ReviewQualityDTO) (*domain.ReviewQuality, error) {
 
 	revQ.ID = uuid.New().String()
+	lastUpdateTime := strconv.FormatInt(revQ.LastUpdateTime.UnixMilli(), 10)
 
 	log.Printf("Submit Transaction: CreateReviewQualityAsset, function creates ReviewQuality for review %s asset on the ledger", revQ.ReviewId)
-	evaluateResult, err := contract.SubmitTransaction("CreateReviewQualityAsset", revQ.ID, revQ.ReviewId, revQ.UserId, strconv.Itoa(revQ.Assessment))
+
+	evaluateResult, err := contract.SubmitTransaction("CreateReviewQualityAsset", revQ.ID, revQ.ReviewId, revQ.UserId, strconv.Itoa(revQ.Assessment), lastUpdateTime)
 	if err != nil {
 		return nil, helper.LedgerErrorHandler(&contract, err)
 	}
@@ -101,13 +86,14 @@ func (r *reviewUsecase) CreateReviewQuality(ctx context.Context, contract client
 	return reviewAsset, nil
 }
 
-func (r *reviewUsecase) CreateReview(ctx context.Context, contract client.Contract, review dto.ReviewDTO) (*domain.Review, error) {
+func (r *reviewUsecase) CreateReview(ctx context.Context, contract client.Contract, review dto.NewReviewDTO) (*domain.Review, error) {
 
-	review.ID = uuid.New().String()
+	ID := uuid.New().String()
+	lastUpdateTime := strconv.FormatInt(time.Now().UnixMilli(), 10)
 
 	log.Printf("Submit Transaction: CreateReviewAsset, function creates review for scientific work %s on the ledger", review.ScientificWorkId)
 
-	evaluateResult, err := contract.SubmitTransaction("CreateReviewAsset", review.ID, review.ScientificWorkId, review.UserId, strconv.Itoa(review.Assessment), strconv.FormatBool(review.Recommend), review.Review)
+	evaluateResult, err := contract.SubmitTransaction("CreateReviewAsset", ID, review.ScientificWorkId, review.UserId, strconv.Itoa(review.Assessment), strconv.FormatBool(review.Recommend), review.Review, lastUpdateTime)
 
 	if err != nil {
 		return nil, helper.LedgerErrorHandler(&contract, err)
@@ -184,11 +170,9 @@ type ReviewUsecase interface {
 	GetAllReviews(ctx context.Context, contract client.Contract) ([]*domain.Review, error)
 	GetAllReviewsByScientificWork(ctx context.Context, contract client.Contract, sciWorkId string) ([]*domain.Review, error)
 	GetAllReviewsByUser(ctx context.Context, contract client.Contract, sciWorkId string) ([]*domain.Review, error)
-	CreateReview(ctx context.Context, contract client.Contract, review dto.ReviewDTO) (*domain.Review, error)
+	CreateReview(ctx context.Context, contract client.Contract, review dto.NewReviewDTO) (*domain.Review, error)
 	CreateReviewQuality(ctx context.Context, contract client.Contract, review *dto.ReviewQualityDTO) (*domain.ReviewQuality, error)
 	DeleteReview(context context.Context, contract client.Contract, id string) error
-	FixReviewId(context context.Context, contract client.Contract, id string) error
-	FixReviewQualityId(context context.Context, contract client.Contract, id string) error
 	GetAllReviewQualities(ctx context.Context, contract client.Contract) ([]*domain.ReviewQuality, error)
 	GetAllReviewQualityByReview(ctx context.Context, contract client.Contract, reviewId string) ([]*domain.ReviewQuality, error)
 }

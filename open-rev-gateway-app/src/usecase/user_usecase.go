@@ -9,6 +9,8 @@ import (
 	"open-rev.com/domain"
 	"open-rev.com/helper"
 	"open-rev.com/infrastructure/dto"
+	"strconv"
+	"time"
 )
 
 type userUsecase struct {
@@ -80,8 +82,8 @@ func (r *userUsecase) GetUserById(context context.Context, contract client.Contr
 
 func (r *userUsecase) EditUser(context context.Context, contract client.Contract, user dto.EditUserDTO) error {
 	log.Printf("Submit Transaction: EditOpenRevUserAsset, function edits user with id %s", user.ID)
-
-	evaluateResult, err := contract.SubmitTransaction("EditOpenRevUserAsset", user.ID, user.Name, user.Surname)
+	time := strconv.FormatInt(time.Now().UnixMilli(), 10)
+	evaluateResult, err := contract.SubmitTransaction("EditOpenRevUserAsset", user.ID, user.Name, user.Surname, time)
 	if err != nil {
 		return helper.LedgerErrorHandler(&contract, err)
 	}
@@ -118,10 +120,10 @@ func (r *userUsecase) Register(context context.Context, contract client.Contract
 	user.RoleId = 4
 	user.Verified = true
 	code := helper.RandomStringGenerator(8)
+	time := strconv.FormatInt(time.Now().UnixMilli(), 10)
 
-	log.Println("Submit Transaction: CreateRevUserAsset, function creates user on the ledger")
-
-	evaluateResult, err := contract.SubmitTransaction("CreateRevUserAsset", user.ID, user.Name, user.Surname, code, user.Email)
+	log.Println("Submit Transaction: CreateOpenRevUserAsset, function creates user on the ledger")
+	evaluateResult, err := contract.SubmitTransaction("CreateOpenRevUserAsset", user.ID, user.Name, user.Surname, code, user.Email, time)
 	if err != nil {
 		return nil, helper.LedgerErrorHandler(&contract, err)
 	}
@@ -137,8 +139,8 @@ func (r *userUsecase) Register(context context.Context, contract client.Contract
 
 func (r *userUsecase) ConfirmAccount(context context.Context, contract client.Contract, code, id string) (*domain.OpenRevUser, error) {
 	log.Printf("Submit Transaction: VerifyRevUserAsset, function verifies the user with id %s", id)
-
-	evaluateResult, err := contract.SubmitTransaction("VerifyRevUserAsset", code, id)
+	time := strconv.FormatInt(time.Now().UnixMilli(), 10)
+	evaluateResult, err := contract.SubmitTransaction("VerifyRevUserAsset", code, id, time)
 	if err != nil {
 		return nil, helper.LedgerErrorHandler(&contract, err)
 	}

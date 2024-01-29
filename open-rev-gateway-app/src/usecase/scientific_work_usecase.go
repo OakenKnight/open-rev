@@ -11,6 +11,7 @@ import (
 	"open-rev.com/helper"
 	"open-rev.com/infrastructure/dto"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -32,7 +33,14 @@ func (s *scientificWorkUsecase) GetAllScientificWorksWithDetails(context context
 	if err != nil {
 		return nil, err
 	}
+	for _, work := range works {
+		publishDate, err := convertStringToDate(work.PublishDate)
+		if err != nil {
+			return nil, err
+		}
+		work.PublishDate = publishDate.String()
 
+	}
 	return works, nil
 }
 
@@ -63,7 +71,13 @@ func (s *scientificWorkUsecase) GetAllScientificWorksBySubareaId(context context
 	if err != nil {
 		return nil, err
 	}
-
+	for _, work := range works {
+		publishDate, err := convertStringToDate(work.PublishDate)
+		if err != nil {
+			return nil, err
+		}
+		work.PublishDate = publishDate.String()
+	}
 	return works, nil
 }
 
@@ -80,7 +94,13 @@ func (s *scientificWorkUsecase) GetAllScientificWorksByUser(context context.Cont
 	if err != nil {
 		return nil, err
 	}
-
+	for _, work := range works {
+		publishDate, err := convertStringToDate(work.PublishDate)
+		if err != nil {
+			return nil, err
+		}
+		work.PublishDate = publishDate.String()
+	}
 	return works, nil
 }
 
@@ -98,7 +118,11 @@ func (s *scientificWorkUsecase) GetScientificWorkById(context context.Context, c
 	if err != nil {
 		return nil, err
 	}
-
+	publishDate, err := convertStringToDate(work.PublishDate)
+	if err != nil {
+		return nil, err
+	}
+	work.PublishDate = publishDate.String()
 	return work, nil
 }
 
@@ -116,18 +140,21 @@ func (s *scientificWorkUsecase) GetScientificWorkDetails(context context.Context
 	if err != nil {
 		return nil, err
 	}
-
+	publishDate, err := convertStringToDate(work.WorkInfo.PublishDate)
+	if err != nil {
+		return nil, err
+	}
+	work.WorkInfo.PublishDate = publishDate.String()
 	return work, nil
 }
 func (s *scientificWorkUsecase) CreateScientificWork(context context.Context, contract client.Contract, dto *dto.NewScientificWorkDTO) (*domain.ScientificWork, error) {
 	sciWork := domain.ScientificWork{Keywords: dto.Keywords, Abstract: dto.Abstract, UserId: dto.UserId, SubAreaId: dto.SubAreaId, Title: dto.Title, PdfFile: dto.PdfFile}
 	sciWork.ID = uuid.New().String()
-	pubDateTimeNow := time.Now()
-	publishDateString := pubDateTimeNow.Format("2006-01-02")
-	sciWork.PublishDate = publishDateString
+
+	time := strconv.FormatInt(time.Now().UnixMilli(), 10)
 
 	log.Println("Submit Transaction: CreateScientificWorkAsset, function creates scientific work on the ledger")
-	evaluateResult, err := contract.SubmitTransaction("CreateScientificWorkAsset", sciWork.ID, sciWork.Title, sciWork.Abstract, sciWork.Keywords, sciWork.PdfFile, sciWork.SubAreaId, sciWork.UserId, sciWork.PublishDate)
+	evaluateResult, err := contract.SubmitTransaction("CreateScientificWorkAsset", sciWork.ID, sciWork.Title, sciWork.Abstract, sciWork.Keywords, sciWork.PdfFile, sciWork.SubAreaId, sciWork.UserId, time)
 	if err != nil {
 		return nil, helper.LedgerErrorHandler(&contract, err)
 	}
@@ -155,7 +182,13 @@ func (s *scientificWorkUsecase) GetAllScientificWorks(context context.Context, c
 	if err != nil {
 		return nil, err
 	}
-
+	for _, work := range works {
+		publishDate, err := convertStringToDate(work.PublishDate)
+		if err != nil {
+			return nil, err
+		}
+		work.PublishDate = publishDate.String()
+	}
 	return works, nil
 }
 
@@ -183,19 +216,26 @@ func (s *scientificWorkUsecase) GetDashboard(context context.Context, contract c
 	})
 
 	for _, work := range works {
-		t, err := time.Parse("2006-01-02", work.PublishDate)
+
+		publishDate, err := convertStringToDate(work.PublishDate)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing date")
+			return nil, err
 		}
+		lastUpdateTime, err := convertStringToDate(work.LastUpdateTime)
+		if err != nil {
+			return nil, err
+		}
+
 		dashboard.Assessments = append(dashboard.Assessments, dto.DashboardItemForSortDTO{
-			ID:          work.ID,
-			User:        work.User,
-			AverageRate: work.AverageRate,
-			Abstract:    work.Abstract,
-			Keywords:    work.Keywords,
-			PdfFile:     work.PdfFile,
-			Title:       work.Title,
-			PublishDate: t,
+			ID:             work.ID,
+			User:           work.User,
+			AverageRate:    work.AverageRate,
+			Abstract:       work.Abstract,
+			Keywords:       work.Keywords,
+			PdfFile:        work.PdfFile,
+			Title:          work.Title,
+			PublishDate:    publishDate,
+			LastUpdateTime: lastUpdateTime,
 		})
 	}
 
@@ -203,10 +243,17 @@ func (s *scientificWorkUsecase) GetDashboard(context context.Context, contract c
 		dashboard.MostRecent = append(dashboard.MostRecent, v)
 	}
 	sort.Slice(dashboard.MostRecent, func(i, j int) bool {
-		return dashboard.MostRecent[i].PublishDate.After(dashboard.MostRecent[j].PublishDate)
+		return dashboard.MostRecent[i].LastUpdateTime.After(dashboard.MostRecent[j].PublishDate)
 	})
 
 	return &dashboard, nil
+}
+func convertStringToDate(timestamp string) (time.Time, error) {
+	milliseconds, err := strconv.Atoi(timestamp)
+	if err != nil {
+		return time.Now(), fmt.Errorf("Error parsing date")
+	}
+	return time.UnixMilli(int64(milliseconds)), nil
 }
 
 type ScientificWorkUsecase interface {

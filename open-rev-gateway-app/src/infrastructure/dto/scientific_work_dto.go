@@ -5,21 +5,6 @@ import (
 	"time"
 )
 
-type ScientificWorkDTO struct {
-	ID          string    `json:"id"`
-	SubAreaId   string    `json:"SubAreaId"`
-	Title       string    `json:"Title"`
-	PublishDate time.Time `json:"PublishDate"`
-	Abstract    string    `json:"Abstract"`
-	Keywords    string    `json:"Keywords"`
-	PdfFile     string    `json:"PdfFile"`
-	UserId      string    `json:"UserId"`
-}
-
-type ScientificWorkTitleDTO struct {
-	Title string `json:"title"`
-}
-
 type ScientificWorkDetailsDTO struct {
 	Area     string                `json:"area"`
 	AvgMark  float32               `json:"avg_mark"`
@@ -28,22 +13,24 @@ type ScientificWorkDetailsDTO struct {
 }
 
 type NewScientificWorkDTO struct {
-	SubAreaId string `json:"SubAreaId"`
-	Title     string `json:"Title"`
-	Abstract  string `json:"Abstract"`
-	Keywords  string `json:"Keywords"`
-	PdfFile   string `json:"PdfFile"`
-	UserId    string `json:"UserId"`
+	SubAreaId      string    `json:"SubAreaId"`
+	Title          string    `json:"Title"`
+	Abstract       string    `json:"Abstract"`
+	Keywords       string    `json:"Keywords"`
+	PdfFile        string    `json:"PdfFile"`
+	UserId         string    `json:"UserId"`
+	LastUpdateTime time.Time `json:"last_update_time"`
 }
 
 type ScientificWorkWithDetailsDTO struct {
-	ID          string  `json:"guid"`
-	Title       string  `json:"title"`
-	SubAreaId   string  `json:"sub_area_id"`
-	PublishDate string  `json:"publish_date"`
-	Abstract    string  `json:"abstract"`
-	Keywords    string  `json:"keywords"`
-	PdfFile     string  `json:"pdf"`
-	User        string  `json:"user"`
-	AvgRate     float32 `json:"avg_rate"`
+	ID             string  `json:"guid"`
+	Title          string  `json:"title"`
+	SubAreaId      string  `json:"sub_area_id"`
+	PublishDate    string  `json:"publish_date"`
+	Abstract       string  `json:"abstract"`
+	Keywords       string  `json:"keywords"`
+	PdfFile        string  `json:"pdf"`
+	User           string  `json:"user"`
+	AvgRate        float32 `json:"avg_rate"`
+	LastUpdateTime string  `json:"last_update_time"`
 }

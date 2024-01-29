@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hyperledger/fabric-gateway/pkg/client"
@@ -51,6 +52,7 @@ func (u *userHandler) GetTopAuthors(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, top)
 }
 
+// todo: handle deleted lastupdatetim
 func (u *userHandler) DeleteOpenRevUser(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -91,7 +93,7 @@ func (u *userHandler) EditUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": helper.XSS})
 		return
 	}
-
+	user.LastUpdateTime = time.Now()
 	err := u.UserUsecase.EditUser(ctx, u.Contract, user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -145,7 +147,6 @@ func (u *userHandler) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": helper.XSS})
 		return
 	}
-
 	newRegisteredUser, err := u.UserUsecase.Register(ctx, u.Contract, user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -164,6 +165,15 @@ func (u *userHandler) GetUserInfo(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, user)
 }
+func (u *userHandler) GetAllUsers(ctx *gin.Context) {
+	users, err := u.UserUsecase.GetAllUsers(ctx, u.Contract)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
+}
 
 type UserHandler interface {
 	EditUser(ctx *gin.Context)
@@ -179,14 +189,4 @@ type UserHandler interface {
 
 func NewUserHandler(userUsecase usecase.UserUsecase, contract *client.Contract) UserHandler {
 	return &userHandler{UserUsecase: userUsecase, Contract: *contract}
-}
-
-func (u *userHandler) GetAllUsers(ctx *gin.Context) {
-	users, err := u.UserUsecase.GetAllUsers(ctx, u.Contract)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, users)
 }

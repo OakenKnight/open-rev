@@ -10,6 +10,7 @@ import (
 	"open-rev.com/infrastructure/dto"
 	"open-rev.com/usecase"
 	"strings"
+	"time"
 )
 
 type areaHandler struct {
@@ -47,7 +48,7 @@ func (a *areaHandler) AddArea(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": helper.XSS})
 		return
 	}
-
+	newArea.LastUpdateTime = time.Now()
 	err := a.AreaUsecase.AddArea(ctx, a.Contract, newArea)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -60,22 +61,22 @@ func (a *areaHandler) AddArea(ctx *gin.Context) {
 func (a *areaHandler) AddSubArea(ctx *gin.Context) {
 	decoder := json.NewDecoder(ctx.Request.Body)
 
-	var newArea dto.AddSubAreaDto
-	if err := decoder.Decode(&newArea); err != nil {
+	var newSubarea dto.AddSubAreaDto
+	if err := decoder.Decode(&newSubarea); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": helper.Body_decoding_err})
 		return
 	}
 
 	policy := bluemonday.UGCPolicy()
-	newArea.Name = strings.TrimSpace(policy.Sanitize(newArea.Name))
-	newArea.AreaId = strings.TrimSpace(policy.Sanitize(newArea.AreaId))
-
-	if newArea.Name == "" || newArea.AreaId == "" {
+	newSubarea.Name = strings.TrimSpace(policy.Sanitize(newSubarea.Name))
+	newSubarea.AreaId = strings.TrimSpace(policy.Sanitize(newSubarea.AreaId))
+	newSubarea.LastUpdateTime = time.Now()
+	if newSubarea.Name == "" || newSubarea.AreaId == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": helper.XSS})
 		return
 	}
 
-	err := a.AreaUsecase.AddSubArea(ctx, a.Contract, newArea)
+	err := a.AreaUsecase.AddSubArea(ctx, a.Contract, newSubarea)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -83,10 +84,13 @@ func (a *areaHandler) AddSubArea(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Success"})
 }
+
+// todo: handle deleted lastupdatetim
 func (a *areaHandler) DeleteArea(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	err := a.AreaUsecase.DeleteArea(ctx, a.Contract, id)
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -94,6 +98,8 @@ func (a *areaHandler) DeleteArea(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully deleted"})
 }
+
+// todo: handle deleted lastupdatetim
 
 func (a *areaHandler) DeleteSubArea(ctx *gin.Context) {
 	id := ctx.Param("id")

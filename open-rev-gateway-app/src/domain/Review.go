@@ -8,4 +8,5 @@ type Review struct {
 	UserId           string
 	ScientificWorkId string
 	IsDeleted        bool
+	LastUpdateTime   string `json:"last_update_time"`
 }

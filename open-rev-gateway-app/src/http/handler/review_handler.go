@@ -10,6 +10,7 @@ import (
 	"open-rev.com/infrastructure/dto"
 	"open-rev.com/usecase"
 	"strings"
+	"time"
 )
 
 type reviewHandler struct {
@@ -26,35 +27,10 @@ type ReviewHandler interface {
 	CreateReviewQuality(ctx *gin.Context)
 	DeleteReview(ctx *gin.Context)
 	GetAllReviewQualityByReview(ctx *gin.Context)
-	FixReviewId(ctx *gin.Context)
-	FixReviewQualityId(ctx *gin.Context)
 }
 
 func NewReviewHandler(reviewUsecase usecase.ReviewUsecase, contract *client.Contract) ReviewHandler {
 	return &reviewHandler{ReviewUsecase: reviewUsecase, Contract: *contract}
-}
-func (r *reviewHandler) FixReviewId(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	err := r.ReviewUsecase.FixReviewId(ctx, r.Contract, id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully fixed rev id"})
-}
-
-func (r *reviewHandler) FixReviewQualityId(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	err := r.ReviewUsecase.FixReviewQualityId(ctx, r.Contract, id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"message": "Successfully fixed revQ id"})
 }
 
 func (r *reviewHandler) GetAllReviewQualityByReview(ctx *gin.Context) {
@@ -68,6 +44,7 @@ func (r *reviewHandler) GetAllReviewQualityByReview(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, reviews)
 }
 
+// todo: handle deleted lastupdatetim
 func (r *reviewHandler) DeleteReview(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -98,6 +75,7 @@ func (r *reviewHandler) CreateReviewQuality(ctx *gin.Context) {
 		return
 	}
 
+	review.LastUpdateTime = time.Now()
 	_, err := r.ReviewUsecase.CreateReviewQuality(ctx, r.Contract, &review)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -127,8 +105,9 @@ func (r *reviewHandler) GetAllReviewQualities(ctx *gin.Context) {
 }
 
 func (r *reviewHandler) CreateReview(ctx *gin.Context) {
+
 	decoder := json.NewDecoder(ctx.Request.Body)
-	var review dto.ReviewDTO
+	var review dto.NewReviewDTO
 	if err := decoder.Decode(&review); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": helper.Body_decoding_err})
 		return

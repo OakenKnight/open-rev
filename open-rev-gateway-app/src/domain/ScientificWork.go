@@ -1,15 +1,16 @@
 package domain
 
 type ScientificWork struct {
-	ID          string `json:"guid"`
-	SubAreaId   string `json:"sub_area_id"`
-	Title       string `json:"title"`
-	PublishDate string `json:"publish_date"`
-	Abstract    string `json:"abstract"`
-	Keywords    string `json:"keywords"`
-	PdfFile     string `json:"pdf"`
-	UserId      string `json:"user_guid"`
-	IsDeleted   bool   `json:"is_deleted"`
+	ID             string `json:"guid"`
+	SubAreaId      string `json:"sub_area_id"`
+	Title          string `json:"title"`
+	PublishDate    string `json:"publish_date"`
+	Abstract       string `json:"abstract"`
+	Keywords       string `json:"keywords"`
+	PdfFile        string `json:"pdf"`
+	UserId         string `json:"user_guid"`
+	IsDeleted      bool   `json:"is_deleted"`
+	LastUpdateTime string `json:"last_update_time"`
 }
 
 type ScientificWorkDetailsDTO struct {
